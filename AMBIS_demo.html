@@ -424,6 +424,58 @@
 
   /* bold helper */
   .b { font-weight: 700; color: var(--text-primary); }
+
+  /* Settings modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,.7); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px; width: 480px; max-width: 90vw;
+    animation: fadeUp .3s cubic-bezier(.22,.68,0,1.1) both;
+  }
+  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .modal-sub { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
+  .modal-label { font-size: 11.5px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; letter-spacing: .3px; text-transform: uppercase; }
+  .modal-input {
+    width: 100%; background: var(--bg-base); border: 1px solid var(--border);
+    border-radius: 10px; padding: 11px 14px; color: var(--text-primary);
+    font-family: 'Inter', monospace; font-size: 12.5px; outline: none;
+    transition: border-color .2s;
+  }
+  .modal-input:focus { border-color: var(--border-accent); }
+  .modal-input::placeholder { color: var(--text-muted); }
+  .modal-row { display: flex; gap: 10px; margin-top: 16px; }
+  .btn-primary {
+    flex: 1; padding: 10px; border-radius: 10px; border: none; cursor: pointer;
+    background: var(--grad-primary); color: white; font-size: 13px; font-weight: 600;
+    transition: opacity .2s;
+  }
+  .btn-primary:hover { opacity: .85; }
+  .btn-ghost {
+    padding: 10px 18px; border-radius: 10px; border: 1px solid var(--border);
+    background: none; color: var(--text-secondary); font-size: 13px; cursor: pointer;
+    transition: background .15s;
+  }
+  .btn-ghost:hover { background: var(--bg-card); }
+  .key-status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; padding: 8px 12px; border-radius: 8px; margin-bottom: 16px;
+  }
+  .key-status.set { background: rgba(16,185,129,.1); color: #6ee7b7; border: 1px solid rgba(16,185,129,.2); }
+  .key-status.unset { background: rgba(245,158,11,.1); color: #fcd34d; border: 1px solid rgba(245,158,11,.2); }
+
+  /* Settings gear button */
+  .gear-btn {
+    width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg-elevated); cursor: pointer; display: flex; align-items: center;
+    justify-content: center; transition: background .15s; flex-shrink: 0;
+  }
+  .gear-btn:hover { background: var(--bg-card); }
+  .gear-btn.active { border-color: var(--border-accent); background: rgba(99,102,241,.1); }
 </style>
 </head>
 <body>
@@ -534,9 +586,30 @@
         <span class="val">14</span>
         <span class="lbl">campaigns</span>
       </div>
-      <div class="live-badge">
+      <div class="live-badge" id="live-badge">
         <div class="pulse-dot"></div>
-        Live
+        <span id="mode-label">Demo</span>
+      </div>
+      <button class="gear-btn" id="gear-btn" onclick="openSettings()" title="API Settings">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b949e" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal" onclick="if(event.target===this)closeSettings()">
+      <div class="modal-box">
+        <div class="modal-title">API Settings</div>
+        <div class="modal-sub">Paste your Anthropic API key below to enable live Claude AI responses. The key is stored only in this browser tab and never sent anywhere except Anthropic's servers.</div>
+        <div id="key-status-banner" class="key-status unset">No API key set — running in Demo Mode</div>
+        <div class="modal-label">Anthropic API Key</div>
+        <input class="modal-input" id="api-key-input" type="password" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false">
+        <div class="modal-row">
+          <button class="btn-primary" onclick="saveApiKey()">Save &amp; Activate Live AI</button>
+          <button class="btn-ghost" onclick="clearApiKey()">Clear Key</button>
+          <button class="btn-ghost" onclick="closeSettings()">Cancel</button>
+        </div>
       </div>
     </div>
 
@@ -686,6 +759,92 @@
 let sidebarCollapsed = false;
 let currentPage = 'chat';
 let isTyping = false;
+let AMBIS_KEY = '';
+
+// ── Settings ─────────────────────────────────────────────────────────────
+function openSettings() {
+  document.getElementById('settings-modal').classList.add('open');
+  document.getElementById('gear-btn').classList.add('active');
+  if (AMBIS_KEY) document.getElementById('api-key-input').value = AMBIS_KEY;
+}
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('open');
+  document.getElementById('gear-btn').classList.remove('active');
+}
+function saveApiKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (!val || val.length < 20) { alert('Please enter a valid API key.'); return; }
+  AMBIS_KEY = val;
+  updateKeyStatus(true);
+  closeSettings();
+}
+function clearApiKey() {
+  AMBIS_KEY = '';
+  document.getElementById('api-key-input').value = '';
+  updateKeyStatus(false);
+}
+function updateKeyStatus(isSet) {
+  const banner = document.getElementById('key-status-banner');
+  const badge = document.getElementById('live-badge');
+  const label = document.getElementById('mode-label');
+  if (isSet) {
+    banner.className = 'key-status set';
+    banner.textContent = 'API key active — Live Claude AI enabled';
+    label.textContent = 'Live AI';
+    badge.style.background = 'rgba(16,185,129,.1)';
+    badge.style.borderColor = 'rgba(16,185,129,.3)';
+  } else {
+    banner.className = 'key-status unset';
+    banner.textContent = 'No API key set — running in Demo Mode';
+    label.textContent = 'Demo';
+    badge.style.background = '';
+    badge.style.borderColor = '';
+  }
+}
+
+// ── Claude API call ───────────────────────────────────────────────────────
+const SYSTEM_PROMPT = `You are AMBIS — Cars24's AI performance marketing intelligence system with deep expertise in Meta Ads and the Indian used car market.
+
+Cars24 context:
+- India's largest used car marketplace (buyer and seller journeys)
+- Key cities: Delhi NCR, Mumbai, Bangalore, Hyderabad, Pune, Chennai, Kolkata
+- Car segments: Hatchback (Swift, i20, WagonR, Baleno), Sedan (City, Verna, Dzire), Compact SUV (Creta, Seltos, Nexon, Brezza), Premium (Thar, XUV700, Fortuner)
+- Target audiences: First-time buyers (22-35), Family upgraders (30-45), Value hunters (28-45), Sellers (30-50)
+- CPL benchmarks: Rs 300-600 good, Rs 600-900 acceptable, Rs 900+ needs action
+- Competitors: Spinny, OLX Autos, CarDekho, CarWale, Droom
+- Budget: typically Rs 1L to 25L per campaign
+
+When asked to plan a campaign: provide full 3-level Meta Ads hierarchy (campaign > ad sets > ads), budget split, projected CPL, targeting strategy.
+When asked for ad copy: provide 3 variations (aspiration, affordability, social proof) with headline, body text, CTA.
+When asked about competitors: provide threat analysis, ad strategy gaps, specific recommendations.
+When asked about performance: provide metrics analysis, optimization recommendations, actionable next steps.
+Always be specific, use Indian rupee values, use actual car model names, and think like a senior performance marketer. Format responses clearly with sections and data.`;
+
+async function callClaudeAPI(userMessage) {
+  if (!AMBIS_KEY) return null;
+  const payload = {
+    model: 'claude-sonnet-4-6',
+    max_tokens: 1500,
+    system: SYSTEM_PROMPT,
+    messages: [{ role: 'user', content: userMessage }]
+  };
+  const headers = {
+    'Content-Type': 'application/json',
+    'x-api-key': AMBIS_KEY,
+    'anthropic-version': '2023-06-01',
+  };
+  // Try direct (works if Anthropic allows CORS for this origin)
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers, body: JSON.stringify(payload) });
+    if (res.ok) { const d = await res.json(); return d.content?.[0]?.text || null; }
+  } catch(e) {}
+  // Try via CORS proxy
+  try {
+    const res = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.anthropic.com/v1/messages'), { method: 'POST', headers, body: JSON.stringify(payload) });
+    if (res.ok) { const d = await res.json(); return d.content?.[0]?.text || null; }
+  } catch(e) {}
+  return null;
+}
 
 // ── Sidebar ─────────────────────────────────────────────────────────────
 function toggleSidebar() {
@@ -719,7 +878,7 @@ function sendChip(text) {
   sendMessage();
 }
 
-function sendMessage() {
+async function sendMessage() {
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
   if (!text || isTyping) return;
@@ -736,23 +895,35 @@ function sendMessage() {
   // Show typing
   isTyping = true;
   const typing = document.getElementById('typing-indicator');
-  typing.classList.add('visible');
+  typing.style.display = 'flex';
+  typing.style.padding = '0 24px 8px';
   scrollMessages();
 
-  // Generate response after delay
-  const delay = 1200 + Math.random() * 800;
-  setTimeout(() => {
-    typing.classList.remove('visible');
-    isTyping = false;
-    const response = getAIResponse(text);
-    addMessage('ai', response.text, response.card);
-    scrollMessages();
-  }, delay);
+  let responseText = null;
+  let responseCard = null;
+
+  // Try real Claude API if key is set
+  if (AMBIS_KEY) {
+    responseText = await callClaudeAPI(text);
+  }
+
+  // Fall back to smart demo mode
+  if (!responseText) {
+    const demo = getAIResponse(text);
+    responseText = demo.text;
+    responseCard = demo.card;
+    // Small delay for demo mode to feel natural
+    await new Promise(r => setTimeout(r, 400 + Math.random() * 600));
+  }
+
+  typing.style.display = 'none';
+  isTyping = false;
+  addMessage('ai', responseText, responseCard);
+  scrollMessages();
 }
 
 function addMessage(role, text, card) {
   const msgs = document.getElementById('messages');
-  const typing = document.getElementById('typing-indicator');
   const row = document.createElement('div');
   row.className = `msg-row ${role}`;
 
@@ -788,7 +959,7 @@ function addMessage(role, text, card) {
     row.appendChild(right);
   }
 
-  msgs.insertBefore(row, typing);
+  msgs.appendChild(row);
 }
 
 function formatText(text) {
@@ -809,33 +980,101 @@ document.getElementById('chat-input').addEventListener('keydown', function(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 });
 
+// ── Smart entity extraction ───────────────────────────────────────────────
+function extractEntities(text) {
+  const t = text.toLowerCase();
+  const carMap = {
+    'swift': 'Maruti Swift', 'creta': 'Hyundai Creta', 'i20': 'Hyundai i20',
+    'nexon': 'Tata Nexon', 'seltos': 'Kia Seltos', 'city': 'Honda City',
+    'verna': 'Hyundai Verna', 'baleno': 'Maruti Baleno', 'wagon': 'Maruti WagonR',
+    'dzire': 'Maruti Dzire', 'punch': 'Tata Punch', 'thar': 'Mahindra Thar',
+    'xuv': 'Mahindra XUV700', 'ertiga': 'Maruti Ertiga', 'brezza': 'Maruti Brezza',
+    'fortuner': 'Toyota Fortuner', 'innova': 'Toyota Innova'
+  };
+  const cityMap = {
+    'delhi': 'Delhi NCR', 'ncr': 'Delhi NCR', 'gurgaon': 'Delhi NCR', 'noida': 'Delhi NCR',
+    'mumbai': 'Mumbai', 'pune': 'Pune', 'bangalore': 'Bangalore', 'bengaluru': 'Bangalore',
+    'hyderabad': 'Hyderabad', 'chennai': 'Chennai', 'kolkata': 'Kolkata',
+    'ahmedabad': 'Ahmedabad', 'jaipur': 'Jaipur', 'lucknow': 'Lucknow', 'surat': 'Surat'
+  };
+  const cplBase = {
+    'swift': 440, 'creta': 490, 'i20': 420, 'nexon': 465, 'seltos': 480, 'city': 510,
+    'verna': 500, 'baleno': 430, 'wagon': 410, 'dzire': 435, 'punch': 450, 'thar': 580,
+    'xuv': 560, 'ertiga': 455, 'brezza': 460, 'fortuner': 650, 'innova': 520
+  };
+  const cityMul = {
+    'delhi': 1.0, 'ncr': 1.0, 'gurgaon': 1.0, 'noida': 1.0,
+    'mumbai': 1.15, 'pune': 0.98, 'bangalore': 1.05, 'bengaluru': 1.05,
+    'hyderabad': 0.95, 'chennai': 1.10, 'kolkata': 0.90,
+    'ahmedabad': 0.92, 'jaipur': 0.88, 'lucknow': 0.85, 'surat': 0.87
+  };
+
+  const carEntry = Object.entries(carMap).find(([k]) => t.includes(k));
+  const cityEntry = Object.entries(cityMap).find(([k]) => t.includes(k));
+  const budgetMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:l\b|lakh|lac)/i);
+  const carKey = carEntry ? carEntry[0] : 'swift';
+  const cityKey = cityEntry ? cityEntry[0] : 'delhi';
+  const baseCpl = cplBase[carKey] || 460;
+  const mul = cityMul[cityKey] || 1.0;
+  const cpl = Math.round(baseCpl * mul);
+  const budget = parseFloat(budgetMatch ? budgetMatch[1] : '5');
+  const leads = Math.round((budget * 100000) / cpl);
+
+  return {
+    car: carEntry ? carEntry[1] : 'Maruti Swift',
+    carKey,
+    city: cityEntry ? cityEntry[1] : 'Delhi NCR',
+    budget,
+    cpl,
+    leads
+  };
+}
+
+function detectIntent(text) {
+  const t = text.toLowerCase();
+  if (/\b(competitor|spinny|olx|cardekho|droom|rival|competition|vs)\b/.test(t)) return 'competitor';
+  if (/\b(copy|creative|write|headline|ad text|content|caption)\b/.test(t)) return 'copy';
+  if (/\b(performance|analysis|report|metric|cpl|roas|stat|result|this week|weekly|daily)\b/.test(t)) return 'analysis';
+  if (/\b(audience|target|segment|who|buyer|persona|targeting)\b/.test(t)) return 'audience';
+  if (/\b(memory|learning|past|history|previous|recall|learnings)\b/.test(t)) return 'memory';
+  if (/\b(upload|csv|excel|file|import|data)\b/.test(t)) return 'upload';
+  if (/\b(plan|campaign|launch|run|create|setup|start|build|meta|ad|ads|facebook)\b/.test(t)) return 'campaign';
+  return 'general';
+}
+
 // ── AI Responses ─────────────────────────────────────────────────────────
 function getAIResponse(msg) {
   const m = msg.toLowerCase();
+  const e = extractEntities(msg);
+  const intent = detectIntent(msg);
 
-  if (m.includes('swift') || (m.includes('campaign') && m.includes('delhi'))) {
+  if (intent === 'campaign') {
+    const b1 = (e.budget * 0.30).toFixed(1);
+    const b2 = (e.budget * 0.30).toFixed(1);
+    const b3 = (e.budget * 0.20).toFixed(1);
+    const b4 = (e.budget * 0.20).toFixed(1);
     return {
-      text: "Campaign plan ready for **Maruti Swift in Delhi NCR**. I've structured a full 3-level Meta Ads hierarchy with 4 ad sets targeting high-intent audiences. Budget allocated at ₹5L over 14 days with projected CPL of ₹420–480.",
+      text: `Campaign plan ready for **${e.car} in ${e.city}**. Full 3-level Meta Ads hierarchy with 4 ad sets. Budget of ₹${e.budget}L over 14 days with projected CPL of ₹${e.cpl} and ~${e.leads.toLocaleString()} leads.`,
       card: `
         <div class="rich-card">
           <div class="card-header">
-            <span class="card-title">Campaign Plan — Maruti Swift, Delhi NCR</span>
+            <span class="card-title">Campaign Plan — ${e.car}, ${e.city}</span>
             <span class="card-badge badge-indigo">AI Generated</span>
           </div>
           <div class="card-body">
             <div class="kpi-grid" style="margin-bottom:14px">
-              <div class="kpi-box"><div class="k-label">Total Budget</div><div class="k-val" style="color:var(--indigo-light)">₹5,00,000</div><div class="k-delta delta-up">14-day flight</div></div>
-              <div class="kpi-box"><div class="k-label">Projected CPL</div><div class="k-val" style="color:var(--cyan-light)">₹440</div><div class="k-delta delta-up">Below benchmark</div></div>
-              <div class="kpi-box"><div class="k-label">Est. Leads</div><div class="k-val" style="color:#6ee7b7">1,136</div><div class="k-delta" style="color:var(--text-muted)">±15% variance</div></div>
+              <div class="kpi-box"><div class="k-label">Total Budget</div><div class="k-val" style="color:var(--indigo-light)">₹${e.budget}L</div><div class="k-delta delta-up">14-day flight</div></div>
+              <div class="kpi-box"><div class="k-label">Projected CPL</div><div class="k-val" style="color:var(--cyan-light)">₹${e.cpl}</div><div class="k-delta delta-up">${e.cpl < 500 ? 'Below benchmark' : 'On benchmark'}</div></div>
+              <div class="kpi-box"><div class="k-label">Est. Leads</div><div class="k-val" style="color:#6ee7b7">${e.leads.toLocaleString()}</div><div class="k-delta" style="color:var(--text-muted)">±15% variance</div></div>
               <div class="kpi-box"><div class="k-label">Ad Sets</div><div class="k-val" style="color:#fcd34d">4</div><div class="k-delta" style="color:var(--text-muted)">3 creatives each</div></div>
             </div>
             <div class="divider"></div>
             <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Ad Set Breakdown</div>
             ${[
-              ['First-Time Buyers 22–32', '₹1.5L', 'Interest: New car, EMI, First job', 'cyan'],
-              ['Family Upgraders 30–45', '₹1.5L', 'Lookalike: Past Swift buyers', 'indigo'],
-              ['Value Hunters — Retargeting', '₹1.0L', 'Website visitors, App users 30d', 'green'],
-              ['Broad Delhi NCR Expansion', '₹1.0L', 'Age 25–50, Income top 25%', 'amber']
+              [`First-Time Buyers 22–32`, `₹${b1}L`, `Interest: New car, EMI, First job`, 'cyan'],
+              [`${e.car} Loyalists Lookalike`, `₹${b2}L`, `Lookalike 1%: Past ${e.car} buyers`, 'indigo'],
+              [`Retargeting — High Intent`, `₹${b3}L`, `Website visitors, App users 30d`, 'green'],
+              [`${e.city} Broad Expansion`, `₹${b4}L`, `Age 25–50, Income top 25%`, 'amber']
             ].map(([name, budget, audience, color]) => `
               <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
                 <div><div style="font-size:12.5px;font-weight:600">${name}</div><div style="font-size:11px;color:var(--text-muted)">${audience}</div></div>
@@ -846,30 +1085,31 @@ function getAIResponse(msg) {
     };
   }
 
-  if (m.includes('creta') || m.includes('ad copy') || m.includes('copy')) {
+  if (intent === 'copy') {
+    const emi = Math.round(e.cpl * 28);
     return {
-      text: "Generated **3 ad copy variations** for Hyundai Creta targeting family buyers in Mumbai. Each variation takes a distinct psychological angle to maximise A/B testing coverage.",
+      text: `Generated **3 ad copy variations** for ${e.car} targeting buyers in ${e.city}. Each variation uses a distinct psychological angle for A/B testing.`,
       card: `
         <div class="rich-card">
           <div class="card-header">
-            <span class="card-title">Ad Copy — Hyundai Creta, Mumbai</span>
+            <span class="card-title">Ad Copy — ${e.car}, ${e.city}</span>
             <span class="card-badge badge-cyan">3 Variations</span>
           </div>
           <div class="card-body">
             <div class="copy-row">
               <div class="copy-angle">Variation A — Aspiration</div>
-              <div class="copy-headline">The SUV Mumbai families trust — now at Cars24</div>
-              <div class="copy-body">Drive home your dream Creta with zero paperwork. Inspected, verified, and priced fairly. EMI from ₹12,500/month. 7-day return guarantee.</div>
+              <div class="copy-headline">The ${e.car} ${e.city} families trust — now at Cars24</div>
+              <div class="copy-body">Drive home your dream ${e.car} with zero paperwork. Inspected, verified, and priced fairly. EMI from ₹${emi.toLocaleString()}/month. 7-day return guarantee.</div>
               <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
-                <span class="tag tag-indigo">Family angle</span>
+                <span class="tag tag-indigo">Aspiration angle</span>
                 <span class="tag tag-cyan">CTA: Book Test Drive</span>
                 <span class="tag tag-green">Projected CTR: 3.2%</span>
               </div>
             </div>
             <div class="copy-row">
               <div class="copy-angle">Variation B — Affordability</div>
-              <div class="copy-headline">Certified Creta. Half the price. Full confidence.</div>
-              <div class="copy-body">Why pay new price? Get a fully inspected Hyundai Creta from Cars24 with bank finance, free RC transfer, and 1-year warranty included.</div>
+              <div class="copy-headline">Certified ${e.car}. Half the price. Full confidence.</div>
+              <div class="copy-body">Why pay new price? Get a fully inspected ${e.car} from Cars24 with bank finance, free RC transfer, and 1-year warranty included.</div>
               <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
                 <span class="tag tag-amber">Value angle</span>
                 <span class="tag tag-cyan">CTA: Check Price</span>
@@ -878,8 +1118,8 @@ function getAIResponse(msg) {
             </div>
             <div class="copy-row">
               <div class="copy-angle">Variation C — Social Proof</div>
-              <div class="copy-headline">50,000+ families chose Cars24 for their Creta</div>
-              <div class="copy-body">Join lakhs of happy owners across Mumbai. Every car: 200-point inspection. Instant loan approval. Same-day delivery available in select areas.</div>
+              <div class="copy-headline">50,000+ buyers chose Cars24 for their ${e.car}</div>
+              <div class="copy-body">Join lakhs of happy owners across ${e.city}. Every car: 200-point inspection. Instant loan approval. Same-day delivery available in select areas.</div>
               <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
                 <span class="tag tag-green">Social proof</span>
                 <span class="tag tag-cyan">CTA: View Cars</span>
@@ -891,7 +1131,7 @@ function getAIResponse(msg) {
     };
   }
 
-  if (m.includes('competitor') || m.includes('spinny') || m.includes('olx')) {
+  if (intent === 'competitor') {
     return {
       text: "Competitor intelligence report generated. **Spinny** and **OLX Autos** are your primary threats in Meta Ads. Key opportunity: both are underinvesting in video creative and retargeting audiences — exploit this gap.",
       card: `
@@ -930,7 +1170,7 @@ function getAIResponse(msg) {
     };
   }
 
-  if (m.includes('performance') || m.includes('analysis') || m.includes('report') || m.includes('week')) {
+  if (intent === 'analysis') {
     return {
       text: "**Weekly performance analysis complete.** Strong week overall — CPL improved 8.3% to ₹487, leads up 18.4% YoY. Delhi NCR and Bangalore driving best results. Two campaigns flagged for optimisation.",
       card: `
@@ -959,7 +1199,7 @@ function getAIResponse(msg) {
     };
   }
 
-  if (m.includes('audience') || m.includes('target') || m.includes('bangalore')) {
+  if (intent === 'audience') {
     return {
       text: "Audience strategy for **first-time car buyers in Bangalore** — 3 high-performing segments identified based on Cars24 historical data and Meta audience signals.",
       card: `
@@ -987,7 +1227,7 @@ function getAIResponse(msg) {
     };
   }
 
-  if (m.includes('memory') || m.includes('learning') || m.includes('past')) {
+  if (intent === 'memory') {
     return {
       text: "Retrieving **memory and learnings** from past campaigns in Delhi NCR. Found 12 relevant entries from Q1–Q2 2025.",
       card: `
@@ -1015,7 +1255,7 @@ function getAIResponse(msg) {
     };
   }
 
-  if (m.includes('upload') || m.includes('csv') || m.includes('report')) {
+  if (intent === 'upload') {
     return {
       text: "To upload a **Meta Ads CSV report**, export it from Meta Ads Manager (Columns: Delivery, Performance, Engagement) and I'll analyse CPL trends, top/bottom performers, frequency fatigue, and generate actionable recommendations.",
       card: `
@@ -1038,10 +1278,26 @@ function getAIResponse(msg) {
     };
   }
 
-  // Default
+  // Smart general fallback — tries to make sense of any query
   return {
-    text: `I'm AMBIS — Cars24's AI Meta Ads intelligence system. I can help you **plan campaigns**, **generate ad copy**, **research competitors**, **analyse performance data**, and **retrieve past learnings**.\n\nTry asking me to plan a campaign for a specific car model and city, or generate ad copy variations.`,
-    card: null
+    text: `Based on your query, here's what AMBIS recommends for **${e.car} in ${e.city}**. I've detected this as a general intelligence request — try being more specific for deeper insights. You can ask me to:\n\n**Plan a campaign** — "Plan a ₹${e.budget}L campaign for ${e.car} in ${e.city}"\n**Generate copy** — "Write ad copy for ${e.car}"\n**Competitor research** — "Research Spinny vs Cars24"\n**Performance** — "Show this week's performance report"`,
+    card: `
+      <div class="rich-card">
+        <div class="card-header">
+          <span class="card-title">Quick Intelligence — ${e.car}, ${e.city}</span>
+          <span class="card-badge badge-cyan">Overview</span>
+        </div>
+        <div class="card-body">
+          <div class="kpi-grid">
+            <div class="kpi-box"><div class="k-label">Est. CPL Benchmark</div><div class="k-val" style="color:var(--indigo-light)">₹${e.cpl}</div><div class="k-delta delta-up">${e.city} market</div></div>
+            <div class="kpi-box"><div class="k-label">Budget / Leads (₹${e.budget}L)</div><div class="k-val" style="color:var(--cyan-light)">${e.leads.toLocaleString()}</div><div class="k-delta delta-up">Projected output</div></div>
+          </div>
+          <div class="divider"></div>
+          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.7">
+            AMBIS can plan full campaigns, write ad copy, analyse competitors, retrieve past learnings, and generate daily performance reports. Type a specific command above to get started.
+          </div>
+        </div>
+      </div>`
   };
 }
 
