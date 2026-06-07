@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AMBIS — Autonomous Media Buying Intelligence System | Cars24</title>
+<title>AMBIS  -  Autonomous Media Buying Intelligence System | Cars24</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -278,9 +278,13 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg-base);c
     <span>Memory</span>
   </div>
   <div class="sidebar-footer">
-    <div class="user-pill">
+    <div class="user-pill" onclick="openAdmin()" title="Settings &amp; API Keys" style="cursor:pointer">
       <div class="user-avatar">YD</div>
-      <div><div class="user-name">Yash Diwan</div><div class="user-role">Performance Marketing</div></div>
+      <div style="flex:1">
+        <div class="user-name">Yash Diwan</div>
+        <div class="user-role">Settings &amp; API Keys</div>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#484f58" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </div>
   </div>
 </nav>
@@ -293,47 +297,121 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg-base);c
     <div class="kpi-pill"><span class="lbl">ROAS</span><span class="val" id="kpi-roas">4.2x</span><span class="delta delta-up">+12%</span></div>
     <div class="kpi-pill"><span class="lbl">Active</span><span class="val" id="kpi-active">14</span><span class="lbl">campaigns</span></div>
     <div class="live-badge" id="live-badge"><div class="pulse-dot"></div><span id="mode-label">Demo</span></div>
-    <button class="gear-btn" id="admin-btn" onclick="openAdmin()" title="Admin" style="opacity:0;pointer-events:none;position:relative" onmouseenter="this.style.opacity='1';this.style.pointerEvents='all'" onmouseleave="this.style.opacity='0';this.style.pointerEvents='none'">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    </button>
-    <button class="gear-btn" id="gear-btn" onclick="openSettings()" title="API Settings">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8b949e" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    </button>
   </div>
 
-  <!-- Settings Modal -->
-  <div class="modal-overlay" id="settings-modal" onclick="if(event.target===this)closeSettings()">
-    <div class="modal-box">
-      <div class="modal-title">API Settings</div>
-      <div class="modal-sub">Your Anthropic key is <strong>saved in this browser</strong> and persists across refreshes. Never shared anywhere except Anthropic servers.</div>
-      <div id="key-status-banner" class="key-status unset">No API key set — running in Demo Mode</div>
-      <div class="modal-label">Anthropic API Key</div>
-      <input class="modal-input" id="api-key-input" type="password" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false">
-      <div class="modal-row">
-        <button class="btn-primary" onclick="saveApiKey()">Save &amp; Activate</button>
-        <button class="btn-ghost" onclick="clearApiKey()">Clear Key</button>
-        <button class="btn-ghost" onclick="closeSettings()">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Admin Modal -->
+  <!-- Combined Admin Panel Modal (opened via Yash Diwan name) -->
   <div class="modal-overlay" id="admin-modal" onclick="if(event.target===this)closeAdmin()">
-    <div class="modal-box" style="max-width:560px;max-height:85vh;overflow-y:auto">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <div class="modal-title" style="margin:0">🔐 Admin Panel</div>
+    <div class="modal-box" style="max-width:600px;max-height:88vh;overflow-y:auto">
+
+      <!-- Header -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div>
+          <div class="modal-title" style="margin:0">Yash Diwan - Settings</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px">All keys saved encrypted in this browser only</div>
+        </div>
         <button class="btn-ghost" style="padding:6px 12px;font-size:12px" onclick="closeAdmin()">Close</button>
       </div>
-      <div class="modal-sub" style="margin-bottom:16px">All keys stored encrypted in browser only. Required for real API integrations.</div>
-      <div id="admin-keys"></div>
-      <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px">
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">Meta Ad Account ID (without "act_" prefix)</div>
-        <div style="display:flex;gap:8px;margin-bottom:12px">
-          <input class="modal-input" id="admin_meta_account" type="text" placeholder="123456789012" value="" style="flex:1;font-size:12px;margin-bottom:0">
-          <button class="btn-primary" style="flex-shrink:0;padding:8px 14px;font-size:12px" onclick="saveAdminKey('meta_account')">Save</button>
+
+      <div id="key-status-banner" class="key-status unset" style="margin-bottom:16px">No Claude key set - running in Demo Mode</div>
+
+      <!-- Section 1: AI Engine -->
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:10px">AI Engine</div>
+      <div style="margin-bottom:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div><div style="font-size:13px;font-weight:700">Anthropic Claude API Key</div><div style="font-size:11px;color:var(--text-muted)">Powers all AI responses, strategies and analysis</div></div>
+          <span class="tag" id="claude-status-tag" style="font-size:10px">Not set</span>
         </div>
-        <button class="btn-ghost" style="font-size:12px;color:#ef4444;border-color:#ef444430" onclick="if(confirm('Clear ALL stored keys?')){['claude','meta_token','meta_adlib','apify','google','crm_hook','admin_pass','meta_account'].forEach(_clear);AMBIS_KEY='';updateKeyStatus(false);closeAdmin();alert('All keys cleared.');}">Clear All &amp; Reset</button>
+        <div style="display:flex;gap:8px">
+          <input class="modal-input" id="admin_claude" type="password" placeholder="sk-ant-api03-..." style="flex:1;font-size:12.5px;margin-bottom:0">
+          <button class="btn-primary" style="padding:8px 14px;font-size:12px;flex-shrink:0" onclick="saveAdminKey('claude')">Save</button>
+          <button class="btn-ghost" style="padding:8px 10px;font-size:12px;flex-shrink:0" onclick="clearAdminKey('claude')">Clear</button>
+        </div>
       </div>
+
+      <div style="height:1px;background:var(--border);margin:16px 0"></div>
+
+      <!-- Section 2: Meta Integration -->
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:10px">Meta Ads Integration</div>
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div><div style="font-size:13px;font-weight:700">Meta Access Token</div><div style="font-size:11px;color:var(--text-muted)">Required for campaign creation, insights and Ad Library</div></div>
+          <span class="tag" id="meta-status-tag" style="font-size:10px">Not set</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input class="modal-input" id="admin_meta_token" type="password" placeholder="EAAxxxxxxxxxx..." style="flex:1;font-size:12.5px;margin-bottom:0">
+          <button class="btn-primary" style="padding:8px 14px;font-size:12px;flex-shrink:0" onclick="saveAdminKey('meta_token')">Save</button>
+          <button class="btn-ghost" style="padding:8px 10px;font-size:12px;flex-shrink:0" onclick="clearAdminKey('meta_token')">Clear</button>
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px">Meta Ad Account ID</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Numbers only - no "act_" prefix. Find in Meta Ads Manager URL.</div>
+        <div style="display:flex;gap:8px">
+          <input class="modal-input" id="admin_meta_account" type="text" placeholder="123456789012" style="flex:1;font-size:12.5px;margin-bottom:0">
+          <button class="btn-primary" style="padding:8px 14px;font-size:12px;flex-shrink:0" onclick="saveAdminKey('meta_account')">Save</button>
+          <button class="btn-ghost" style="padding:8px 10px;font-size:12px;flex-shrink:0" onclick="clearAdminKey('meta_account')">Clear</button>
+        </div>
+      </div>
+      <div style="background:var(--bg-base);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:4px">
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px">How to get Meta Access Token</div>
+        <div style="font-size:11.5px;color:var(--text-secondary);line-height:1.6">
+          1. Go to <strong>developers.facebook.com</strong> and log in<br>
+          2. Open your app (or create one) - select "My Apps"<br>
+          3. Go to Tools - Graph API Explorer<br>
+          4. Select your app, click "Generate Access Token"<br>
+          5. Select permissions: <strong>ads_read</strong> and <strong>ads_management</strong><br>
+          6. Copy the token and paste above
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--border);margin:16px 0"></div>
+
+      <!-- Section 3: Research Tools -->
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:10px">Research Tools</div>
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <div><div style="font-size:13px;font-weight:700">Apify API Token</div><div style="font-size:11px;color:var(--text-muted)">Live web scraping - competitor pricing from Spinny, OLX, CarDekho</div></div>
+          <span class="tag" id="apify-status-tag" style="font-size:10px">Not set</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input class="modal-input" id="admin_apify" type="password" placeholder="apify_api_xxxx..." style="flex:1;font-size:12.5px;margin-bottom:0">
+          <button class="btn-primary" style="padding:8px 14px;font-size:12px;flex-shrink:0" onclick="saveAdminKey('apify')">Save</button>
+          <button class="btn-ghost" style="padding:8px 10px;font-size:12px;flex-shrink:0" onclick="clearAdminKey('apify')">Clear</button>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--border);margin:16px 0"></div>
+
+      <!-- Section 4: Ad Report Upload -->
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:10px">Ad Report Upload</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Upload your Meta Ads Manager CSV export for AI analysis - CPL trends, top campaigns, budget optimisation.</div>
+      <div style="border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;margin-bottom:8px;transition:border-color .2s" id="upload-zone" onmouseenter="this.style.borderColor='var(--border-accent)'" onmouseleave="this.style.borderColor='var(--border)'">
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px">Drop CSV / Excel file here</div>
+        <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:12px">Meta Ads Manager export (.csv or .xlsx)</div>
+        <input type="file" id="report-file-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleReportUpload(this)">
+        <button class="btn-ghost" style="font-size:12px;padding:7px 16px" onclick="document.getElementById('report-file-input').click()">Select File</button>
+      </div>
+      <div id="report-upload-result" style="display:none;font-size:12.5px;background:var(--bg-base);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text-secondary);line-height:1.6"></div>
+
+      <div style="height:1px;background:var(--border);margin:16px 0"></div>
+
+      <!-- Section 5: Other -->
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin-bottom:10px">Other Integrations</div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px">CRM Webhook URL</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Auto-push qualified leads to your sales CRM</div>
+        <div style="display:flex;gap:8px">
+          <input class="modal-input" id="admin_crm_hook" type="text" placeholder="https://your-crm.com/webhook" style="flex:1;font-size:12.5px;margin-bottom:0">
+          <button class="btn-primary" style="padding:8px 14px;font-size:12px;flex-shrink:0" onclick="saveAdminKey('crm_hook')">Save</button>
+          <button class="btn-ghost" style="padding:8px 10px;font-size:12px;flex-shrink:0" onclick="clearAdminKey('crm_hook')">Clear</button>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--border);margin:16px 0"></div>
+
+      <!-- Danger Zone -->
+      <button class="btn-ghost" style="font-size:12px;color:#ef4444;border-color:rgba(239,68,68,.3);width:100%" onclick="if(confirm('Clear ALL stored keys and reset? This cannot be undone.')){['claude','meta_token','meta_adlib','apify','google','crm_hook','admin_pass','meta_account'].forEach(_clear);AMBIS_KEY='';updateKeyStatus(false);closeAdmin();alert('All data cleared.');}">Clear All Keys and Reset</button>
+
     </div>
   </div>
 
@@ -344,15 +422,15 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg-base);c
         <div class="animate-fade-up" style="animation-delay:.05s"><div class="welcome-logo">AI</div></div>
         <div class="animate-fade-up" style="animation-delay:.1s;text-align:center">
           <div class="welcome-title">AMBIS Intelligence System</div>
-          <div class="welcome-sub" style="margin-top:8px">Agentic AI for Cars24 Meta Ads — live market research, competitor intel, and real campaign deployment in one command.</div>
+          <div class="welcome-sub" style="margin-top:8px">Agentic AI for Cars24 Meta Ads  -  live market research, competitor intel, and real campaign deployment in one command.</div>
         </div>
         <div class="chips-grid animate-fade-up" style="animation-delay:.2s">
-          <div class="chip" onclick="sendChip('Plan Meta campaign for Maruti Swift in Delhi with budget ₹2L')"><span class="chip-icon">🚀</span>Campaign: Swift Delhi ₹2L</div>
-          <div class="chip" onclick="sendChip('Generate ad copy for Hyundai Creta SUV targeting families in Mumbai')"><span class="chip-icon">✍️</span>Ad copy for Creta Mumbai</div>
-          <div class="chip" onclick="sendChip('Research competitors Spinny and OLX Autos — pricing and ads')"><span class="chip-icon">🔍</span>Competitor intelligence</div>
-          <div class="chip" onclick="sendChip('Show me this week campaign performance analysis')"><span class="chip-icon">📊</span>Weekly performance report</div>
-          <div class="chip" onclick="sendChip('What audiences should I target for first-time car buyers in Bangalore?')"><span class="chip-icon">🎯</span>Audience targeting strategy</div>
-          <div class="chip" onclick="sendChip('Show memory and past campaign learnings for Delhi NCR')"><span class="chip-icon">🧠</span>Memory: Delhi NCR learnings</div>
+          <div class="chip" onclick="sendChip('Plan Meta campaign for Maruti Swift in Delhi with budget ₹2L')"><span class="chip-icon"></span>Campaign: Swift Delhi ₹2L</div>
+          <div class="chip" onclick="sendChip('Generate ad copy for Hyundai Creta SUV targeting families in Mumbai')"><span class="chip-icon"></span>Ad copy for Creta Mumbai</div>
+          <div class="chip" onclick="sendChip('Research competitors Spinny and OLX Autos  -  pricing and ads')"><span class="chip-icon"></span>Competitor intelligence</div>
+          <div class="chip" onclick="sendChip('Show me this week campaign performance analysis')"><span class="chip-icon"></span>Weekly performance report</div>
+          <div class="chip" onclick="sendChip('What audiences should I target for first-time car buyers in Bangalore?')"><span class="chip-icon"></span>Audience targeting strategy</div>
+          <div class="chip" onclick="sendChip('Show memory and past campaign learnings for Delhi NCR')"><span class="chip-icon"></span>Memory: Delhi NCR learnings</div>
         </div>
       </div>
     </div>
@@ -361,7 +439,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg-base);c
       <div class="msg-bubble" style="padding:0"><div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>
     </div>
     <div id="input-bar">
-      <div id="input-wrap"><textarea id="chat-input" rows="1" placeholder="Command AMBIS — plan a campaign, research competitors, analyse performance..."></textarea></div>
+      <div id="input-wrap"><textarea id="chat-input" rows="1" placeholder="Command AMBIS  -  plan a campaign, research competitors, analyse performance..."></textarea></div>
       <button id="send-btn" onclick="sendMessage()"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg></button>
     </div>
   </div>
@@ -370,7 +448,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg-base);c
   <div id="launch-page" class="page" style="display:none">
     <div style="margin-bottom:24px">
       <div style="font-size:20px;font-weight:800;margin-bottom:4px">Launch Campaign</div>
-      <div style="font-size:13px;color:var(--text-muted)">Fill the brief — AMBIS researches competitors, builds strategy, and deploys to Meta in one pipeline</div>
+      <div style="font-size:13px;color:var(--text-muted)">Fill the brief  -  AMBIS researches competitors, builds strategy, and deploys to Meta in one pipeline</div>
     </div>
     <div class="launch-wizard">
       <div class="wizard-step">
@@ -406,8 +484,8 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg-base);c
         <div id="launch-pipeline-area" style="margin-bottom:16px;display:none"></div>
         <div id="launch-result-area" style="margin-bottom:16px;display:none"></div>
         <div style="display:flex;gap:10px">
-          <button class="btn-primary" onclick="runLaunchPipeline()" id="launch-btn">🚀 Research &amp; Build Campaign</button>
-          <button class="btn-ghost" id="deploy-meta-btn" onclick="deployToMeta()" style="display:none">⚡ Deploy to Meta Ads</button>
+          <button class="btn-primary" onclick="runLaunchPipeline()" id="launch-btn"> Research &amp; Build Campaign</button>
+          <button class="btn-ghost" id="deploy-meta-btn" onclick="deployToMeta()" style="display:none"> Deploy to Meta Ads</button>
         </div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:8px" id="launch-meta-hint">
           Connect Meta Token in Admin panel to enable live deployment. Campaigns created in PAUSED status.
@@ -420,27 +498,27 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg-base);c
   <div id="intelligence-page" class="page" style="display:none">
     <div style="margin-bottom:20px">
       <div style="font-size:20px;font-weight:800;margin-bottom:4px">Competitor Intelligence</div>
-      <div style="font-size:13px;color:var(--text-muted)">Live web scraping + Meta Ad Library scan — see exactly what competitors are running</div>
+      <div style="font-size:13px;color:var(--text-muted)">Live web scraping + Meta Ad Library scan  -  see exactly what competitors are running</div>
     </div>
     <div class="search-bar">
-      <input id="intel-query" type="text" placeholder="Car model + city — e.g. Maruti Swift Delhi" value="Maruti Swift Delhi">
-      <button class="btn-primary" onclick="runIntelligence()">🔍 Run Research</button>
+      <input id="intel-query" type="text" placeholder="Car model + city  -  e.g. Maruti Swift Delhi" value="Maruti Swift Delhi">
+      <button class="btn-primary" onclick="runIntelligence()"> Run Research</button>
       <button class="btn-ghost" onclick="runIntelligence('spinny olx cardekho')">Competitor Ads Only</button>
     </div>
     <div id="intel-pipeline-area" style="margin-bottom:16px;display:none"></div>
     <div id="intel-results" style="display:none">
       <div class="intel-grid">
         <div class="intel-card">
-          <div class="intel-card-title">📊 Market Pricing <span class="tag tag-cyan" id="intel-source-tag">Live Data</span></div>
+          <div class="intel-card-title"> Market Pricing <span class="tag tag-cyan" id="intel-source-tag">Live Data</span></div>
           <div id="intel-pricing"></div>
         </div>
         <div class="intel-card">
-          <div class="intel-card-title">📡 Competitor Active Ads <span class="tag tag-amber" id="intel-ads-count">—</span></div>
+          <div class="intel-card-title"> Competitor Active Ads <span class="tag tag-amber" id="intel-ads-count"> - </span></div>
           <div id="intel-ads"></div>
         </div>
       </div>
       <div class="intel-card" style="margin-bottom:14px">
-        <div class="intel-card-title">🧠 AI Threat Analysis</div>
+        <div class="intel-card-title"> AI Threat Analysis</div>
         <div id="intel-analysis" style="font-size:13px;line-height:1.7;color:var(--text-secondary)"></div>
       </div>
     </div>
@@ -451,7 +529,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg-base);c
     <div style="margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
       <div><div style="font-size:20px;font-weight:700">Performance Dashboard</div><div style="font-size:12px;color:var(--text-muted);margin-top:3px" id="dash-updated">Last updated: Today, 11:45 AM IST</div></div>
       <div style="display:flex;gap:8px">
-        <div class="tag tag-cyan" style="padding:6px 12px;border-radius:8px;cursor:pointer" onclick="refreshPerformance()">↻ Refresh</div>
+        <div class="tag tag-cyan" style="padding:6px 12px;border-radius:8px;cursor:pointer" onclick="refreshPerformance()">Refresh Refresh</div>
         <div class="tag tag-indigo" style="padding:6px 12px;border-radius:8px;cursor:pointer">Export</div>
       </div>
     </div>
@@ -475,7 +553,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg-base);c
     </div>
     <div class="two-col">
       <div class="chart-area animate-fade-up" style="animation-delay:.25s">
-        <div class="chart-title">Daily Leads — This Week <span class="tag tag-green">On Track</span></div>
+        <div class="chart-title">Daily Leads  -  This Week <span class="tag tag-green">On Track</span></div>
         <div class="bar-chart" id="leads-chart"></div>
       </div>
       <div class="chart-area animate-fade-up" style="animation-delay:.3s">
@@ -500,16 +578,16 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg-base);c
     </div>
     <div class="memory-grid">
       <div class="memory-card">
-        <div style="font-size:13.5px;font-weight:700;margin-bottom:14px">📋 Campaign History <span class="tag tag-indigo" id="mem-count">0 entries</span></div>
+        <div style="font-size:13.5px;font-weight:700;margin-bottom:14px"> Campaign History <span class="tag tag-indigo" id="mem-count">0 entries</span></div>
         <div id="memory-history"><div style="font-size:12.5px;color:var(--text-muted);padding:20px 0;text-align:center">No campaigns yet. Run a campaign from AI Command or Launch page.</div></div>
       </div>
       <div class="memory-card">
-        <div style="font-size:13.5px;font-weight:700;margin-bottom:14px">🧠 AI Learnings <span class="tag tag-cyan" id="learning-count">0 insights</span></div>
+        <div style="font-size:13.5px;font-weight:700;margin-bottom:14px"> AI Learnings <span class="tag tag-cyan" id="learning-count">0 insights</span></div>
         <div id="memory-learnings"><div style="font-size:12.5px;color:var(--text-muted);padding:20px 0;text-align:center">Learnings appear here after running campaigns.</div></div>
       </div>
     </div>
     <div class="intel-card" id="memory-synthesis-card" style="display:none">
-      <div class="intel-card-title">🔮 Cross-Campaign Intelligence</div>
+      <div class="intel-card-title"> Cross-Campaign Intelligence</div>
       <div id="memory-synthesis" style="font-size:13px;line-height:1.7;color:var(--text-secondary)"></div>
     </div>
   </div>
@@ -518,7 +596,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg-base);c
 </div><!-- #app -->
 <script>
 // ═══════════════════════════════════════════════════
-// AMBIS v2 — Real Agentic Intelligence System
+// AMBIS v2  -  Real Agentic Intelligence System
 // ═══════════════════════════════════════════════════
 
 // ── Secure Storage ──────────────────────────────────
@@ -549,7 +627,7 @@ let lastCampaignPlan=null;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
 // ── API: Claude ──────────────────────────────────────
-const SYSTEM_PROMPT=`You are AMBIS — Cars24's autonomous media buying intelligence system.
+const SYSTEM_PROMPT=`You are AMBIS  -  Cars24's autonomous media buying intelligence system.
 Cars24 context: India's largest used car marketplace.
 Cities: Delhi NCR, Mumbai, Bangalore, Hyderabad, Pune, Chennai, Kolkata.
 Car segments: Hatchback (Swift,i20,WagonR,Baleno,Dzire), Sedan (City,Verna), Compact SUV (Creta,Seltos,Nexon,Brezza), Premium (Thar,XUV700,Fortuner).
@@ -664,9 +742,9 @@ function getDemoMarketData(e){
 
 function getDemoAdIntel(e){
   const ads=[
-    {name:'Spinny',count:4,copies:['Certified used cars with 200-point inspection','Buy a Spinny assured car — zero surprises']},
+    {name:'Spinny',count:4,copies:['Certified used cars with 200-point inspection','Buy a Spinny assured car  -  zero surprises']},
     {name:'CarDekho',count:3,copies:['Find the best used car deals near you','Compare prices from 1000+ dealers']},
-    {name:'OLX Autos',count:2,copies:['Sell your car at best price — free inspection']},
+    {name:'OLX Autos',count:2,copies:['Sell your car at best price  -  free inspection']},
   ];
   return{ads,count:9,summary:'9 competitor ads · Spinny, CarDekho, OLX active',isDemo:true};
 }
@@ -686,7 +764,7 @@ function getDemoStrategy(e,market,ads){
   const b4=e.budget-b1-b2-b3;
   const mktSummary=market?`Market data shows pricing range ${(market.prices||[]).map(p=>p.range||p.price||'').join(', ')}.`:'';
   const adSummary=ads?`Competitors running ${ads.count||0} active campaigns.`:'';
-  return`**Campaign Plan: ${e.car} — ${e.city}**
+  return`**Campaign Plan: ${e.car}  -  ${e.city}**
 
 ${mktSummary} ${adSummary} Here's the full strategy:
 
@@ -695,46 +773,46 @@ ${mktSummary} ${adSummary} Here's the full strategy:
 
 **Ad Set Breakdown (4 sets):**
 
-**Set 1 — First-Time Buyers 22–32** (₹${(b1/100000).toFixed(1)}L)
+**Set 1  -  First-Time Buyers 22–32** (₹${(b1/100000).toFixed(1)}L)
 Interests: Car finance, EMI calculator, First job, Car driving school
 Placements: Reels + Stories | Format: Video 15s showing inspection process
 Expected CPL: ₹${Math.round(e.cpl*0.88)}
 
-**Set 2 — ${e.car} Loyalists Lookalike** (₹${(b2/100000).toFixed(1)}L)
+**Set 2  -  ${e.car} Loyalists Lookalike** (₹${(b2/100000).toFixed(1)}L)
 Audience: 1% LAL of past ${e.car} buyers in ${e.city}
 Placements: Feed + Reels | Format: Carousel (3 best listings with prices)
 Expected CPL: ₹${Math.round(e.cpl*0.82)}
 
-**Set 3 — Retargeting — High Intent** (₹${(b3/100000).toFixed(1)}L)
+**Set 3  -  Retargeting  -  High Intent** (₹${(b3/100000).toFixed(1)}L)
 Audience: Website visitors 30d, App opens 14d, Lead form openers
 Placements: Feed | Format: Single image with strong CTA + price
 Expected CPL: ₹${Math.round(e.cpl*0.65)}
 
-**Set 4 — ${e.city} Broad** (₹${(b4/100000).toFixed(1)}L)
+**Set 4  -  ${e.city} Broad** (₹${(b4/100000).toFixed(1)}L)
 Age: 25–50, Top 25% income, ${e.city} radius 35km
 Placements: Advantage+ automatic | Format: A/B test video vs carousel
 Expected CPL: ₹${Math.round(e.cpl*1.1)}
 
-**Competitor Gap Identified:** ${(ads&&ads.ads&&ads.ads[0])||{name:'Spinny'}.name} not running vertical video — use Reels-first to steal reach.
+**Competitor Gap Identified:** ${(ads&&ads.ads&&ads.ads[0])||{name:'Spinny'}.name} not running vertical video  -  use Reels-first to steal reach.
 
 **Projected Results:** ~${e.leads.toLocaleString()} leads over 14 days at avg CPL ₹${e.cpl}.`;
 }
 
 function getDemoCompetitorIntel(e,scrape,adData){
-  return`**Competitor Intelligence Report — ${e.car||'Used Cars'}, ${e.city||'India'}**
+  return`**Competitor Intelligence Report  -  ${e.car||'Used Cars'}, ${e.city||'India'}**
 
 **Pricing Analysis:**
 Based on market scan: Spinny pricing at a 12-15% premium vs OLX. Cars24 opportunity to position as "best value certified" in the ₹4L-8L segment.
 
 **Active Ad Strategies Found:**
-- Spinny: Heavy on "200-point inspection" narrative. Running 4 active campaigns. No video ads detected — major gap.
+- Spinny: Heavy on "200-point inspection" narrative. Running 4 active campaigns. No video ads detected  -  major gap.
 - OLX Autos: Focus on seller acquisition. Lead gen objective. Poor creative quality.
 - CarDekho: Content-first, low Meta investment. SEO dominant player.
 
 **3 Immediate Opportunities for Cars24:**
-1. **Reels-first creative** — No competitor is running vertical video. Own this format in ${e.city||'metro'}.
-2. **Price transparency ads** — Show actual listing prices in carousel. Competitors avoid this. Convert high-intent buyers.
-3. **Weekend targeting** — Historical Cars24 data shows 34% lower CPL on Sat-Sun. No competitor optimises for this.
+1. **Reels-first creative**  -  No competitor is running vertical video. Own this format in ${e.city||'metro'}.
+2. **Price transparency ads**  -  Show actual listing prices in carousel. Competitors avoid this. Convert high-intent buyers.
+3. **Weekend targeting**  -  Historical Cars24 data shows 34% lower CPL on Sat-Sun. No competitor optimises for this.
 
 **Recommended Counter-Campaign:**
 Launch "Certified Better" campaign targeting Spinny-branded keyword audiences. Budget: ₹1.5L/week. Format: Comparison carousel + 15s Reel showing Cars24 inspection vs competitor.`;
@@ -742,32 +820,32 @@ Launch "Certified Better" campaign targeting Spinny-branded keyword audiences. B
 
 function getDemoPerformanceData(){
   return[
-    {campaign_name:'Swift Delhi NCR — Retargeting',spend:'39800',impressions:'284000',clicks:'8120',cpl:309,leads:129,roas:5.1,city:'Delhi NCR'},
-    {campaign_name:'Creta Mumbai — Broad',spend:'98000',impressions:'1120000',clicks:'12400',cpl:907,leads:108,roas:1.8,city:'Mumbai'},
-    {campaign_name:'i20 Bangalore — LAL',spend:'250000',impressions:'890000',clicks:'22800',cpl:445,leads:562,roas:4.3,city:'Bangalore'},
-    {campaign_name:'City Hyderabad — First-time Buyers',spend:'190000',impressions:'650000',clicks:'18200',cpl:490,leads:388,roas:3.9,city:'Hyderabad'},
-    {campaign_name:'Nexon Pune — Advantage+',spend:'150000',impressions:'520000',clicks:'14600',cpl:467,leads:321,roas:4.0,city:'Pune'},
-    {campaign_name:'Baleno Chennai — Lookalike',spend:'150500',impressions:'480000',clicks:'13200',cpl:530,leads:284,roas:3.5,city:'Chennai'},
+    {campaign_name:'Swift Delhi NCR  -  Retargeting',spend:'39800',impressions:'284000',clicks:'8120',cpl:309,leads:129,roas:5.1,city:'Delhi NCR'},
+    {campaign_name:'Creta Mumbai  -  Broad',spend:'98000',impressions:'1120000',clicks:'12400',cpl:907,leads:108,roas:1.8,city:'Mumbai'},
+    {campaign_name:'i20 Bangalore  -  LAL',spend:'250000',impressions:'890000',clicks:'22800',cpl:445,leads:562,roas:4.3,city:'Bangalore'},
+    {campaign_name:'City Hyderabad  -  First-time Buyers',spend:'190000',impressions:'650000',clicks:'18200',cpl:490,leads:388,roas:3.9,city:'Hyderabad'},
+    {campaign_name:'Nexon Pune  -  Advantage+',spend:'150000',impressions:'520000',clicks:'14600',cpl:467,leads:321,roas:4.0,city:'Pune'},
+    {campaign_name:'Baleno Chennai  -  Lookalike',spend:'150500',impressions:'480000',clicks:'13200',cpl:530,leads:284,roas:3.5,city:'Chennai'},
   ];
 }
 
 function getDemoPerformanceAnalysis(data){
   const flagged=data.filter(d=>(d.cpl||999)>700);
   const top=data.filter(d=>(d.cpl||999)<450);
-  return`**Weekly Performance Analysis — Cars24 Meta Ads**
+  return`**Weekly Performance Analysis  -  Cars24 Meta Ads**
 
 **Overall Health:** Strong week. Avg CPL ₹487, leads +18.4% WoW. 4/6 campaigns within benchmark.
 
-**🔴 Needs Action:**
-${flagged.map(d=>`- **${d.campaign_name}** — CPL ₹${d.cpl}, ${Math.round(d.cpl/487*100-100)}% above benchmark. Pause and rebuild targeting.`).join('\n')}
+** Needs Action:**
+${flagged.map(d=>`- **${d.campaign_name}**  -  CPL ₹${d.cpl}, ${Math.round(d.cpl/487*100-100)}% above benchmark. Pause and rebuild targeting.`).join('\n')}
 
-**🟢 Scale Up:**
-${top.map(d=>`- **${d.campaign_name}** — CPL ₹${d.cpl}, ${Math.round(100-d.cpl/487*100)}% below benchmark. Increase budget 30-40%.`).join('\n')}
+** Scale Up:**
+${top.map(d=>`- **${d.campaign_name}**  -  CPL ₹${d.cpl}, ${Math.round(100-d.cpl/487*100)}% below benchmark. Increase budget 30-40%.`).join('\n')}
 
 **Top 3 Optimisations This Week:**
-1. Pause Mumbai Creta campaign — CPL ₹907 is 2x benchmark. Rebuild with tighter geo and LAL audience.
-2. Scale Delhi Retargeting — CPL ₹309 is best in portfolio. Move ₹50K from Mumbai here.
-3. Test Advantage+ Shopping for Bangalore — inventory available, low competition window.`;
+1. Pause Mumbai Creta campaign  -  CPL ₹907 is 2x benchmark. Rebuild with tighter geo and LAL audience.
+2. Scale Delhi Retargeting  -  CPL ₹309 is best in portfolio. Move ₹50K from Mumbai here.
+3. Test Advantage+ Shopping for Bangalore  -  inventory available, low competition window.`;
 }
 </script>
 <script>
@@ -834,10 +912,10 @@ function makePipelineBlock(containerId,pid,steps){
 async function campaignPipeline(userText,e){
   const pid=++pipelineCounter;
   addPipelineBlock(pid,[
-    {id:'research',icon:'🔍',title:'Market Research',subtitle:`Pricing: ${e.car} in ${e.city}`},
-    {id:'ads',icon:'📡',title:'Competitor Ad Library',subtitle:'Scanning active Meta campaigns'},
-    {id:'strategy',icon:'🧠',title:'AI Strategy',subtitle:'Claude synthesising data into plan'},
-    {id:'build',icon:'📋',title:'Campaign Structure',subtitle:'Building 3-level Meta hierarchy'},
+    {id:'research',icon:'',title:'Market Research',subtitle:`Pricing: ${e.car} in ${e.city}`},
+    {id:'ads',icon:'',title:'Competitor Ad Library',subtitle:'Scanning active Meta campaigns'},
+    {id:'strategy',icon:'',title:'AI Strategy',subtitle:'Claude synthesising data into plan'},
+    {id:'build',icon:'',title:'Campaign Structure',subtitle:'Building 3-level Meta hierarchy'},
   ]);
   scrollMessages();
 
@@ -883,9 +961,9 @@ Provide: campaign strategy, 4 ad set breakdown with budgets, creative direction,
 async function competitorPipeline(userText,e){
   const pid=++pipelineCounter;
   addPipelineBlock(pid,[
-    {id:'scrape',icon:'🕷️',title:'Live Competitor Scraping',subtitle:'Apify web intelligence'},
-    {id:'ads',icon:'📡',title:'Meta Ad Library Scan',subtitle:'Active competitor campaigns'},
-    {id:'intel',icon:'🧠',title:'AI Threat Analysis',subtitle:'Claude intelligence report'},
+    {id:'scrape',icon:'',title:'Live Competitor Scraping',subtitle:'Apify web intelligence'},
+    {id:'ads',icon:'',title:'Meta Ad Library Scan',subtitle:'Active competitor campaigns'},
+    {id:'intel',icon:'',title:'AI Threat Analysis',subtitle:'Claude intelligence report'},
   ]);
   scrollMessages();
 
@@ -922,8 +1000,8 @@ Provide: Pricing gap analysis, ad strategy weaknesses, 3 specific Cars24 opportu
 async function performancePipeline(userText,e){
   const pid=++pipelineCounter;
   addPipelineBlock(pid,[
-    {id:'fetch',icon:'📊',title:'Fetch Meta Insights',subtitle:KEYS.meta&&KEYS.metaAccount?'Pulling live campaign data':'No Meta token — using stored data'},
-    {id:'analyse',icon:'🧠',title:'AI Performance Analysis',subtitle:'Optimisation recommendations'},
+    {id:'fetch',icon:'',title:'Fetch Meta Insights',subtitle:KEYS.meta&&KEYS.metaAccount?'Pulling live campaign data':'No Meta token  -  using stored data'},
+    {id:'analyse',icon:'',title:'AI Performance Analysis',subtitle:'Optimisation recommendations'},
   ]);
   scrollMessages();
 
@@ -966,9 +1044,9 @@ async function generalPipeline(userText,e){
 function buildCampaignCard(e,market,ads){
   const b1=(e.budget*0.3/100000).toFixed(1);const b2=(e.budget*0.3/100000).toFixed(1);const b3=(e.budget*0.2/100000).toFixed(1);const b4=(e.budget*0.2/100000).toFixed(1);
   const priceRows=(market&&market.prices||[]).slice(0,3).map(p=>`<div class="comp-price-row"><span style="font-weight:600">${p.site||p.name||''}</span><span class="tag tag-cyan">${p.range||p.price||''}</span><span style="color:var(--text-muted)">${p.listings?p.listings+' listings':''}</span></div>`).join('');
-  const deployBtn=KEYS.meta&&KEYS.metaAccount?`<button class="btn-primary" style="margin-top:12px;font-size:12px;padding:8px 14px" onclick="quickDeploy()">⚡ Deploy to Meta Ads</button>`:'<div style="font-size:11px;color:var(--text-muted);margin-top:8px">Add Meta token in Admin to deploy directly</div>';
+  const deployBtn=KEYS.meta&&KEYS.metaAccount?`<button class="btn-primary" style="margin-top:12px;font-size:12px;padding:8px 14px" onclick="quickDeploy()"> Deploy to Meta Ads</button>`:'<div style="font-size:11px;color:var(--text-muted);margin-top:8px">Add Meta token in Admin to deploy directly</div>';
   return`<div class="rich-card">
-    <div class="card-header"><span class="card-title">Campaign Plan — ${e.car}, ${e.city}</span><span class="card-badge badge-indigo">${ads&&!ads.isDemo?'Live Intel':'AI Generated'}</span></div>
+    <div class="card-header"><span class="card-title">Campaign Plan  -  ${e.car}, ${e.city}</span><span class="card-badge badge-indigo">${ads&&!ads.isDemo?'Live Intel':'AI Generated'}</span></div>
     <div class="card-body">
       <div class="kpi-grid" style="margin-bottom:14px">
         <div class="kpi-box"><div class="k-label">Budget</div><div class="k-val" style="color:var(--indigo-light)">₹${(e.budget/100000).toFixed(1)}L</div><div class="k-delta delta-up">14-day flight</div></div>
@@ -999,7 +1077,7 @@ function buildPerformanceCard(data){
   const rows=data.slice(0,6).map(d=>{
     const cpl=d.cpl||Math.round((parseInt(d.spend)||0)/(parseInt(d.leads||1)||1));
     const color=cpl<500?'green':cpl>800?'red':'amber';
-    return`<tr><td style="font-weight:600">${(d.campaign_name||'Campaign').substring(0,30)}</td><td style="color:var(--text-secondary)">${d.city||'—'}</td><td style="font-weight:700;color:${color==='green'?'var(--green)':color==='red'?'var(--red)':'var(--amber)'}">₹${cpl}</td><td>${d.leads||'—'}</td><td style="color:var(--cyan-light)">${d.roas?d.roas+'x':'—'}</td></tr>`;
+    return`<tr><td style="font-weight:600">${(d.campaign_name||'Campaign').substring(0,30)}</td><td style="color:var(--text-secondary)">${d.city||' - '}</td><td style="font-weight:700;color:${color==='green'?'var(--green)':color==='red'?'var(--red)':'var(--amber)'}">₹${cpl}</td><td>${d.leads||' - '}</td><td style="color:var(--cyan-light)">${d.roas?d.roas+'x':' - '}</td></tr>`;
   }).join('');
   return`<div class="rich-card"><div class="card-header"><span class="card-title">Performance Report</span><span class="card-badge badge-green">This Week</span></div><div class="card-body"><table class="campaigns-table"><thead><tr><th>Campaign</th><th>City</th><th>CPL</th><th>Leads</th><th>ROAS</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
@@ -1009,14 +1087,14 @@ async function quickDeploy(){
   if(!KEYS.meta||!KEYS.metaAccount){alert('Add Meta Token + Account ID in Admin panel first.');return}
   if(!lastCampaignPlan){alert('Run a campaign plan first.');return}
   const btn=document.querySelector('[onclick="quickDeploy()"]');
-  if(btn){btn.textContent='⏳ Creating...';btn.disabled=true}
+  if(btn){btn.textContent=' Creating...';btn.disabled=true}
   const result=await callMetaMarketing('POST',`act_${KEYS.metaAccount}/campaigns`,{name:lastCampaignPlan.name,objective:lastCampaignPlan.objective||'LEAD_GENERATION',status:'PAUSED',special_ad_categories:[]});
   if(result&&result.id){
-    if(btn){btn.textContent=`✓ Created — ID: ${result.id}`;btn.style.background='linear-gradient(135deg,#10b981,#6ee7b7)'}
-    addMessage('ai',`**Campaign deployed to Meta (PAUSED)**\n\nCampaign ID: \`${result.id}\`\nStatus: PAUSED — review in Meta Ads Manager before activating.\nName: ${lastCampaignPlan.name}`);
+    if(btn){btn.textContent=`✓ Created  -  ID: ${result.id}`;btn.style.background='linear-gradient(135deg,#10b981,#6ee7b7)'}
+    addMessage('ai',`**Campaign deployed to Meta (PAUSED)**\n\nCampaign ID: \`${result.id}\`\nStatus: PAUSED  -  review in Meta Ads Manager before activating.\nName: ${lastCampaignPlan.name}`);
     scrollMessages();
   }else{
-    if(btn){btn.textContent='⚠ Error — Check Token';btn.disabled=false}
+    if(btn){btn.textContent='⚠ Error  -  Check Token';btn.disabled=false}
     addMessage('ai','Meta API returned an error. Check: (1) your token is valid, (2) the Ad Account ID is correct (numbers only, no "act_" prefix), (3) your token has ads_management permission.');
     scrollMessages();
   }
@@ -1032,14 +1110,14 @@ async function runLaunchPipeline(){
   const name=document.getElementById('l-name').value.trim()||`AMBIS-${car.split(' ')[0]}-${city.split(' ')[0]}-${new Date().toISOString().split('T')[0]}`;
 
   const btn=document.getElementById('launch-btn');
-  btn.disabled=true;btn.textContent='⏳ Running Pipeline...';
+  btn.disabled=true;btn.textContent=' Running Pipeline...';
 
   const pid=++pipelineCounter;
   makePipelineBlock('launch-pipeline-area',pid,[
-    {id:'research',icon:'🔍',title:'Market Research',subtitle:`Pricing: ${car} in ${city}`},
-    {id:'ads',icon:'📡',title:'Competitor Ad Intel',subtitle:'Meta Ad Library scan'},
-    {id:'strategy',icon:'🧠',title:'AI Strategy',subtitle:'Building campaign plan'},
-    {id:'build',icon:'📋',title:'Campaign Structure',subtitle:'Ready for Meta deployment'},
+    {id:'research',icon:'',title:'Market Research',subtitle:`Pricing: ${car} in ${city}`},
+    {id:'ads',icon:'',title:'Competitor Ad Intel',subtitle:'Meta Ad Library scan'},
+    {id:'strategy',icon:'',title:'AI Strategy',subtitle:'Building campaign plan'},
+    {id:'build',icon:'',title:'Campaign Structure',subtitle:'Ready for Meta deployment'},
   ]);
 
   const fakeE={car,carKey:car.split(' ').pop().toLowerCase(),city,budget,cpl:Math.round(480*(city==='Mumbai'?1.15:city==='Bangalore'?1.1:1.0)),leads:Math.round(budget/480)};
@@ -1064,7 +1142,7 @@ async function runLaunchPipeline(){
   setPipelineStep(pid,'build','running');
   await sleep(500);
   lastCampaignPlan={car,city,budget,objective,name};
-  setPipelineStep(pid,'build','done','4 ad sets built — ready to deploy');
+  setPipelineStep(pid,'build','done','4 ad sets built  -  ready to deploy');
   completePipeline(pid);
 
   const resultArea=document.getElementById('launch-result-area');
@@ -1075,23 +1153,23 @@ async function runLaunchPipeline(){
 
   if(KEYS.meta&&KEYS.metaAccount){
     document.getElementById('deploy-meta-btn').style.display='';
-    document.getElementById('launch-meta-hint').textContent='Meta token connected. Campaign will be created PAUSED — activate in Ads Manager.';
+    document.getElementById('launch-meta-hint').textContent='Meta token connected. Campaign will be created PAUSED  -  activate in Ads Manager.';
   }
 
-  btn.disabled=false;btn.textContent='✓ Strategy Built — Run Again';
+  btn.disabled=false;btn.textContent='✓ Strategy Built  -  Run Again';
 }
 
 async function deployToMeta(){
   if(!KEYS.meta||!KEYS.metaAccount){alert('Set Meta Token + Account ID in Admin first.');return}
   if(!lastCampaignPlan){alert('Build a campaign first.');return}
   const btn=document.getElementById('deploy-meta-btn');
-  btn.disabled=true;btn.textContent='⏳ Deploying...';
+  btn.disabled=true;btn.textContent=' Deploying...';
   const r=await callMetaMarketing('POST',`act_${KEYS.metaAccount}/campaigns`,{name:lastCampaignPlan.name,objective:lastCampaignPlan.objective||'LEAD_GENERATION',status:'PAUSED',special_ad_categories:[]});
   if(r&&r.id){
-    btn.textContent=`✓ Deployed — ID ${r.id}`;btn.style.background='linear-gradient(135deg,#10b981,#6ee7b7)';
+    btn.textContent=`✓ Deployed  -  ID ${r.id}`;btn.style.background='linear-gradient(135deg,#10b981,#6ee7b7)';
     document.getElementById('launch-meta-hint').innerHTML=`<span style="color:var(--green)">✓ Campaign created in Meta Ads Manager (PAUSED). Campaign ID: <strong>${r.id}</strong></span>`;
   }else{
-    btn.disabled=false;btn.textContent='⚠ Error — Retry';
+    btn.disabled=false;btn.textContent='⚠ Error  -  Retry';
     document.getElementById('launch-meta-hint').innerHTML='<span style="color:var(--red)">Error creating campaign. Check token permissions (ads_management required) and account ID.</span>';
   }
 }
@@ -1106,9 +1184,9 @@ async function runIntelligence(overrideQuery){
   document.getElementById('intel-results').style.display='none';
   const pid=++pipelineCounter;
   makePipelineBlock('intel-pipeline-area',pid,[
-    {id:'scrape',icon:'🕷️',title:'Web Scraping',subtitle:KEYS.apify?'Apify live scraper':'Demo data'},
-    {id:'ads',icon:'📡',title:'Meta Ad Library',subtitle:KEYS.meta?'Live scan':'Demo data'},
-    {id:'analyse',icon:'🧠',title:'AI Analysis',subtitle:'Threat & opportunity report'},
+    {id:'scrape',icon:'',title:'Web Scraping',subtitle:KEYS.apify?'Apify live scraper':'Demo data'},
+    {id:'ads',icon:'',title:'Meta Ad Library',subtitle:KEYS.meta?'Live scan':'Demo data'},
+    {id:'analyse',icon:'',title:'AI Analysis',subtitle:'Threat & opportunity report'},
   ]);
 
   setPipelineStep(pid,'scrape','running');
@@ -1134,7 +1212,7 @@ Give: pricing gaps, ad strategy weaknesses, 3 opportunities for Cars24.`;
 
   // Render results
   const pricingEl=document.getElementById('intel-pricing');
-  const priceData=(scrape.items||[]).slice(0,5).map(i=>`<div class="comp-price-row"><span style="font-weight:600">${i.url||'—'}</span><div style="font-size:11px;color:var(--text-muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.snippet||i.title||''}</div></div>`).join('');
+  const priceData=(scrape.items||[]).slice(0,5).map(i=>`<div class="comp-price-row"><span style="font-weight:600">${i.url||' - '}</span><div style="font-size:11px;color:var(--text-muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.snippet||i.title||''}</div></div>`).join('');
   pricingEl.innerHTML=priceData||'<div style="color:var(--text-muted);font-size:12px;padding:10px 0">No structured pricing found</div>';
   document.getElementById('intel-source-tag').textContent=scrape.isDemo?'Demo Data':'Live Apify';
 
@@ -1182,7 +1260,7 @@ function renderMemoryPage(){
     return`<div class="memory-entry">
       <span class="tag ${typeTag}" style="flex-shrink:0;align-self:flex-start;margin-top:2px">${m.type||'data'}</span>
       <div>
-        <div style="font-size:12.5px;font-weight:700">${e.car||'Research'}${e.city?' — '+e.city:''}</div>
+        <div style="font-size:12.5px;font-weight:700">${e.car||'Research'}${e.city?'  -  '+e.city:''}</div>
         <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px">${ts}${e.budget?' · ₹'+(e.budget/100000).toFixed(1)+'L':''}</div>
       </div>
     </div>`;
@@ -1284,7 +1362,7 @@ function detectIntent(text){
 // Fallback for general/audience/memory intents
 function getAIResponse(msg){
   const e=extractEntities(msg);const intent=detectIntent(msg);
-  if(intent==='audience'){return{text:`**Audience strategy for ${e.city}** — 3 segments for ${e.car} buyers.`,card:`<div class="rich-card"><div class="card-header"><span class="card-title">Audience Segments — ${e.city}</span><span class="card-badge badge-indigo">3 Segments</span></div><div class="card-body">${[{s:'Tech Professionals 24–35',sz:'4.2M–4.8M',cpl:'₹390',c:'indigo'},{s:'Young Families 28–40',sz:'2.8M–3.2M',cpl:'₹445',c:'cyan'},{s:'First Job Earners 22–28',sz:'3.6M–4.0M',cpl:'₹510',c:'green'}].map(a=>`<div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><div style="font-size:13px;font-weight:700">${a.s}</div><span class="tag tag-${a.c}">CPL ${a.cpl}</span></div><div style="font-size:11.5px;color:var(--text-muted)">Audience size: ${a.sz}</div></div>`).join('')}</div></div>`};}
+  if(intent==='audience'){return{text:`**Audience strategy for ${e.city}**  -  3 segments for ${e.car} buyers.`,card:`<div class="rich-card"><div class="card-header"><span class="card-title">Audience Segments  -  ${e.city}</span><span class="card-badge badge-indigo">3 Segments</span></div><div class="card-body">${[{s:'Tech Professionals 24–35',sz:'4.2M–4.8M',cpl:'₹390',c:'indigo'},{s:'Young Families 28–40',sz:'2.8M–3.2M',cpl:'₹445',c:'cyan'},{s:'First Job Earners 22–28',sz:'3.6M–4.0M',cpl:'₹510',c:'green'}].map(a=>`<div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><div style="font-size:13px;font-weight:700">${a.s}</div><span class="tag tag-${a.c}">CPL ${a.cpl}</span></div><div style="font-size:11.5px;color:var(--text-muted)">Audience size: ${a.sz}</div></div>`).join('')}</div></div>`};}
   if(intent==='memory'){return{text:'Retrieving campaign memory...',card:`<div class="rich-card"><div class="card-header"><span class="card-title">Campaign Memory</span><span class="card-badge badge-cyan">${getMemory().length} entries</span></div><div class="card-body"><div style="font-size:12.5px;color:var(--text-secondary)">Go to Memory page for full history and AI-synthesised learnings. ${getMemory().length===0?'Run campaigns first to build memory.':'Click Memory in the sidebar.'}</div></div></div>`};}
   return{text:`AMBIS ready. I can plan campaigns, research competitors, analyse performance, and generate ad copy for ${e.car} in ${e.city}. What would you like to do?`,card:null};
 }
@@ -1359,110 +1437,128 @@ function showPage(page){
 }
 
 // ── Settings & Admin ──────────────────────────────────
-function openSettings(){
-  document.getElementById('settings-modal').classList.add('open');
-  document.getElementById('gear-btn').classList.add('active');
-  if(AMBIS_KEY)document.getElementById('api-key-input').value=AMBIS_KEY;
-}
-function closeSettings(){
-  document.getElementById('settings-modal').classList.remove('open');
-  document.getElementById('gear-btn').classList.remove('active');
-}
-function saveApiKey(){
-  const v=document.getElementById('api-key-input').value.trim();
-  if(!v||v.length<20){alert('Enter a valid API key');return}
-  AMBIS_KEY=v;_store('claude',v);updateKeyStatus(true);closeSettings();
-}
-function clearApiKey(){
-  AMBIS_KEY='';_clear('claude');
-  document.getElementById('api-key-input').value='';
-  updateKeyStatus(false);
-}
+function openSettings(){ openAdmin(); } // redirect legacy calls
+function closeSettings(){ closeAdmin(); }
 function updateKeyStatus(set){
   const b=document.getElementById('key-status-banner');
   const badge=document.getElementById('live-badge');
   const lbl=document.getElementById('mode-label');
-  if(set){b.className='key-status set';b.textContent='API key active — Live Claude AI enabled';lbl.textContent='Live AI';badge.style.background='rgba(16,185,129,.1)';badge.style.borderColor='rgba(16,185,129,.3)'}
-  else{b.className='key-status unset';b.textContent='No API key set — running in Demo Mode';lbl.textContent='Demo';badge.style.background='';badge.style.borderColor=''}
+  if(!b)return;
+  if(set){b.className='key-status set';b.textContent='Claude API active - Live AI enabled';lbl.textContent='Live AI';badge.style.background='rgba(16,185,129,.1)';badge.style.borderColor='rgba(16,185,129,.3)'}
+  else{b.className='key-status unset';b.textContent='No Claude key set - running in Demo Mode';lbl.textContent='Demo';badge.style.background='';badge.style.borderColor=''}
+  // update status tags in admin panel
+  const ct=document.getElementById('claude-status-tag');
+  const mt=document.getElementById('meta-status-tag');
+  const at=document.getElementById('apify-status-tag');
+  if(ct){ct.textContent=_load('claude')?'Connected':'Not set';ct.className='tag '+(_load('claude')?'tag-green':'tag-red');}
+  if(mt){mt.textContent=_load('meta_token')?'Connected':'Not set';mt.className='tag '+(_load('meta_token')?'tag-green':'tag-red');}
+  if(at){at.textContent=_load('apify')?'Connected':'Not set';at.className='tag '+(_load('apify')?'tag-green':'tag-red');}
 }
 function openAdmin(){
   const pwd=prompt('Admin password (set one on first use):');
   if(!pwd)return;
   const stored=_load('admin_pass');
-  if(!stored){_store('admin_pass',pwd);renderAdminPanel();document.getElementById('admin-modal').classList.add('open')}
-  else if(pwd===stored){renderAdminPanel();document.getElementById('admin-modal').classList.add('open')}
+  if(!stored){_store('admin_pass',pwd);_populateAdmin();document.getElementById('admin-modal').classList.add('open')}
+  else if(pwd===stored){_populateAdmin();document.getElementById('admin-modal').classList.add('open')}
   else{alert('Incorrect password.')}
 }
 function closeAdmin(){document.getElementById('admin-modal').classList.remove('open')}
-function renderAdminPanel(){
-  const keys=[
-    {id:'claude',label:'Anthropic (Claude)',hint:'sk-ant-api03-...',desc:'Powers all AI responses'},
-    {id:'meta_token',label:'Meta Access Token',hint:'EAAxxxxxxxxxx...',desc:'Meta Marketing API + Ad Library'},
-    {id:'apify',label:'Apify API Token',hint:'apify_api_xxxx...',desc:'Live web scraping — competitor data'},
-    {id:'google',label:'Google Ads/Trends Key',hint:'AIzaSy...',desc:'Trend analysis'},
-    {id:'crm_hook',label:'CRM Webhook URL',hint:'https://your-crm.com/hook',desc:'Lead handoff'},
-  ];
-  document.getElementById('admin-keys').innerHTML=keys.map(k=>`
-    <div style="margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <div><div style="font-size:12.5px;font-weight:700">${k.label}</div><div style="font-size:11px;color:var(--text-muted)">${k.desc}</div></div>
-        <span class="tag ${_load(k.id)?'tag-green':'tag-red'}" style="font-size:10px">${_load(k.id)?'Connected':'Not set'}</span>
-      </div>
-      <div style="display:flex;gap:8px">
-        <input class="modal-input" id="admin_${k.id}" type="password" placeholder="${k.hint}" value="${_load(k.id)}" style="flex:1;font-size:12px;margin-bottom:0">
-        <button class="btn-primary" style="flex-shrink:0;padding:8px 14px;font-size:12px" onclick="saveAdminKey('${k.id}')">Save</button>
-        <button class="btn-ghost" style="flex-shrink:0;padding:8px 10px;font-size:12px" onclick="clearAdminKey('${k.id}')">✕</button>
-      </div>
-    </div>`).join('');
-  document.getElementById('admin_meta_account').value=_load('meta_account');
+function renderAdminPanel(){_populateAdmin();}
+function _populateAdmin(){
+  // populate field values from storage
+  const fields={claude:'admin_claude',meta_token:'admin_meta_token',meta_account:'admin_meta_account',apify:'admin_apify',crm_hook:'admin_crm_hook'};
+  Object.entries(fields).forEach(([k,id])=>{const el=document.getElementById(id);if(el&&_load(k))el.value=_load(k);});
+  updateKeyStatus(!!_load('claude'));
 }
 function saveAdminKey(id){
-  const v=document.getElementById('admin_'+id)?.value.trim();
-  if(v){_store(id,v);if(id==='claude'){AMBIS_KEY=v;updateKeyStatus(true)};renderAdminPanel()}
+  const elMap={claude:'admin_claude',meta_token:'admin_meta_token',meta_account:'admin_meta_account',apify:'admin_apify',crm_hook:'admin_crm_hook'};
+  const elId=elMap[id]||('admin_'+id);
+  const v=document.getElementById(elId)?.value.trim();
+  if(!v){alert('Please enter a value first.');return;}
+  _store(id,v);
+  if(id==='claude'){AMBIS_KEY=v;}
+  updateKeyStatus(!!_load('claude'));
+  const btn=event.currentTarget;const orig=btn.textContent;btn.textContent='Saved!';btn.style.background='var(--green)';setTimeout(()=>{btn.textContent=orig;btn.style.background='';},1500);
 }
 function clearAdminKey(id){
-  _clear(id);if(id==='claude'){AMBIS_KEY='';updateKeyStatus(false)}
-  renderAdminPanel();
+  _clear(id);
+  if(id==='claude'){AMBIS_KEY='';updateKeyStatus(false);}
+  const elMap={claude:'admin_claude',meta_token:'admin_meta_token',meta_account:'admin_meta_account',apify:'admin_apify',crm_hook:'admin_crm_hook'};
+  const elId=elMap[id]||('admin_'+id);
+  const el=document.getElementById(elId);if(el)el.value='';
+  updateKeyStatus(!!_load('claude'));
+}
+function handleReportUpload(input){
+  const file=input.files[0];if(!file)return;
+  const result=document.getElementById('report-upload-result');
+  result.style.display='block';result.textContent='Reading file...';
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    if(!file.name.toLowerCase().endsWith('.csv')){
+      result.textContent='Excel files: export as CSV from Meta Ads Manager (or open in Google Sheets and download as CSV), then re-upload.';return;
+    }
+    const text=e.target.result;
+    const lines=text.trim().split('\n').slice(0,200);
+    const headers=lines[0];
+    const sample=lines.slice(0,6).join('\n');
+    result.textContent='Analysing '+lines.length+' rows...';
+    _storeObj('uploaded_report',{filename:file.name,headers,rows:lines.slice(1,51)});
+    const prompt='You are an expert performance marketer analysing a Meta Ads Manager CSV export for Cars24.\n\nSample data (headers + first 5 rows):\n\n'+sample+'\n\nTotal rows: '+(lines.length-1)+'\n\nProvide a concise analysis: top campaigns by CPL, campaigns to cut, budget reallocation recommendations, and 3 specific action items. Use hyphens not em dashes. No emojis.';
+    try{
+      const analysis=await callClaude(prompt,'You are a senior media buyer. Be direct and specific. Under 300 words.',800);
+      result.innerHTML='<strong>'+file.name+'</strong> ('+(lines.length-1)+' rows)<br><br>'+analysis.replace(/\n/g,'<br>');
+      saveToMemory({type:'report_upload',filename:file.name,analysis:analysis.slice(0,400),ts:new Date().toISOString()});
+    }catch(err){
+      result.innerHTML='<strong>'+file.name+'</strong> uploaded ('+(lines.length-1)+' rows). Connect Claude API key for AI analysis.<br><br><em>Headers detected: '+headers.slice(0,120)+'...</em>';
+    }
+  };
+  reader.readAsText(file);
 }
 
 // ── Dashboard Charts ──────────────────────────────────
 function renderCharts(){
+  const ins=_loadObj('meta_insights');
+  if(ins&&ins.data&&ins.data.length>0){renderLiveCharts(ins);return;}
   const ld=[{l:'Mon',v:520},{l:'Tue',v:490},{l:'Wed',v:610},{l:'Thu',v:580},{l:'Fri',v:720},{l:'Sat',v:650},{l:'Sun',v:272}];
   const cd=[{l:'Delhi',v:420},{l:'Mumbai',v:510},{l:'Blr',v:465},{l:'Hyd',v:490},{l:'Pune',v:445},{l:'Chennai',v:530},{l:'Kolkata',v:480}];
   const maxL=Math.max(...ld.map(d=>d.v));const maxC=Math.max(...cd.map(d=>d.v));
   document.getElementById('leads-chart').innerHTML=ld.map(d=>`<div class="bar-col"><div class="bar-val">${d.v}</div><div class="bar" style="height:${(d.v/maxL)*110}px"></div><div class="bar-label">${d.l}</div></div>`).join('');
-  document.getElementById('cpl-chart').innerHTML=cd.map(d=>`<div class="bar-col"><div class="bar-val">₹${d.v}</div><div class="bar" style="height:${(d.v/maxC)*110}px;background:${d.v<450?'linear-gradient(135deg,#10b981,#6ee7b7)':d.v>510?'linear-gradient(135deg,#ef4444,#fca5a5)':'var(--grad-primary)'}"></div><div class="bar-label">${d.l}</div></div>`).join('');
-  const rows=[['Swift Delhi NCR','Delhi NCR','₹312','1,284','5.1x','₹4.0L','green','Active'],['Creta Mumbai','Mumbai','₹923','108','1.8x','₹1.0L','red','Flagged'],['i20 Bangalore','Bangalore','₹445','562','4.3x','₹2.5L','green','Active'],['City Hyderabad','Hyderabad','₹490','388','3.9x','₹1.9L','green','Active'],['Nexon Pune','Pune','₹467','321','4.0x','₹1.5L','amber','Optimising'],['Baleno Chennai','Chennai','₹530','284','3.5x','₹1.5L','amber','Optimising']];
+  document.getElementById('cpl-chart').innerHTML=cd.map(d=>`<div class="bar-col"><div class="bar-val">Rs.${d.v}</div><div class="bar" style="height:${(d.v/maxC)*110}px;background:${d.v<450?'linear-gradient(135deg,#10b981,#6ee7b7)':d.v>510?'linear-gradient(135deg,#ef4444,#fca5a5)':'var(--grad-primary)'}"></div><div class="bar-label">${d.l}</div></div>`).join('');
+  const rows=[['Swift Delhi NCR','Delhi NCR','Rs.312','1,284','5.1x','Rs.4.0L','green','Active'],['Creta Mumbai','Mumbai','Rs.923','108','1.8x','Rs.1.0L','red','Flagged'],['i20 Bangalore','Bangalore','Rs.445','562','4.3x','Rs.2.5L','green','Active'],['City Hyderabad','Hyderabad','Rs.490','388','3.9x','Rs.1.9L','green','Active'],['Nexon Pune','Pune','Rs.467','321','4.0x','Rs.1.5L','amber','Optimising'],['Baleno Chennai','Chennai','Rs.530','284','3.5x','Rs.1.5L','amber','Optimising']];
   document.getElementById('campaign-rows').innerHTML=rows.map(([n,c,cpl,leads,roas,spend,col,stat])=>`<tr><td style="font-weight:600">${n}</td><td style="color:var(--text-secondary)">${c}</td><td style="font-weight:700;color:${col==='red'?'var(--red)':col==='green'?'var(--green)':'var(--amber)'}">${cpl}</td><td>${leads}</td><td style="color:var(--cyan-light)">${roas}</td><td style="color:var(--text-secondary)">${spend}</td><td><span class="status-dot" style="background:${col==='green'?'var(--green)':col==='red'?'var(--red)':'var(--amber)'}"></span>${stat}</td></tr>`).join('');
 }
-
-async function refreshPerformance(){
-  if(!KEYS.meta||!KEYS.metaAccount){return}
-  const ins=await callMetaMarketing('GET',`act_${KEYS.metaAccount}/insights`,{fields:'campaign_name,spend,impressions,actions,cost_per_action_type',date_preset:'this_week',level:'campaign'});
-  if(ins&&ins.data&&ins.data.length>0){
-    const rows=ins.data.slice(0,10);
-    document.getElementById('campaign-rows').innerHTML=rows.map(d=>{
-      const cpl=Math.round(parseFloat(d.cost_per_action_type?.find(a=>a.action_type==='lead')?.value||0));
-      const leads=parseInt(d.actions?.find(a=>a.action_type==='lead')?.value||0);
-      const spend='₹'+(parseInt(d.spend||0)/100).toFixed(1)+'K';
-      const col=cpl<500?'green':cpl>800?'red':'amber';
-      return`<tr><td style="font-weight:600">${(d.campaign_name||'').substring(0,30)}</td><td style="color:var(--text-secondary)">—</td><td style="font-weight:700;color:${col==='green'?'var(--green)':col==='red'?'var(--red)':'var(--amber)'}">₹${cpl||'—'}</td><td>${leads||'—'}</td><td style="color:var(--cyan-light)">—</td><td style="color:var(--text-secondary)">${spend}</td><td><span class="status-dot" style="background:var(--green)"></span>Live</td></tr>`;
-    }).join('');
-    document.getElementById('dash-updated').textContent='Live from Meta — '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-    document.getElementById('campaigns-count').textContent=rows.length+' campaigns (live)';
-  }
+function renderLiveCharts(ins){
+  const rows=ins.data.slice(0,10);
+  document.getElementById('campaign-rows').innerHTML=rows.map(d=>{
+    const cpl=Math.round(parseFloat(d.cost_per_action_type?.find(a=>a.action_type==='lead')?.value||0));
+    const leads=parseInt(d.actions?.find(a=>a.action_type==='lead')?.value||0);
+    const spend='Rs.'+(parseInt(d.spend||0)/100).toFixed(1)+'K';
+    const col=cpl<500?'green':cpl>800?'red':'amber';
+    return`<tr><td style="font-weight:600">${(d.campaign_name||'').substring(0,30)}</td><td style="color:var(--text-secondary)"> - </td><td style="font-weight:700;color:${col==='green'?'var(--green)':col==='red'?'var(--red)':'var(--amber)'}">Rs.${cpl||' - '}</td><td>${leads||' - '}</td><td style="color:var(--cyan-light)"> - </td><td style="color:var(--text-secondary)">${spend}</td><td><span class="status-dot" style="background:var(--green)"></span>Live</td></tr>`;
+  }).join('');
+  document.getElementById('dash-updated').textContent='Live from Meta - '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('campaigns-count').textContent=rows.length+' campaigns (live)';
 }
 
-// ── Keyboard shortcut ─────────────────────────────────
+// ── Keyboard shortcuts ────────────────────────────────
 document.getElementById('chat-input').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'});
 document.getElementById('chat-input').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}});
 
-// ── Init ──────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded',()=>{
-  AMBIS_KEY=_load('claude');
-  if(AMBIS_KEY)updateKeyStatus(true);
-  showPage('chat');
-});
+// ── Init ─────────────────────────────────────────────
+(function init(){
+  if(KEYS.claude){AMBIS_KEY=KEYS.claude;updateKeyStatus(true);}
+  else{updateKeyStatus(false);}
+  // drag-and-drop for report upload
+  document.addEventListener('DOMContentLoaded',function(){
+    const zone=document.getElementById('upload-zone');
+    if(zone){
+      zone.addEventListener('dragover',function(e){e.preventDefault();this.style.borderColor='var(--border-accent)';this.style.background='rgba(99,102,241,.05)'});
+      zone.addEventListener('dragleave',function(){this.style.borderColor='var(--border)';this.style.background=''});
+      zone.addEventListener('drop',function(e){e.preventDefault();this.style.borderColor='var(--border)';this.style.background='';const f=e.dataTransfer.files[0];if(f){const inp=document.getElementById('report-file-input');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;handleReportUpload(inp);}});
+    }
+  });
+})();
+
 </script>
 </body>
 </html>
