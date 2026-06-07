@@ -1066,9 +1066,36 @@ async function generalPipeline(userText,e){
   const t=document.getElementById('typing-indicator');
   t.style.display='flex';t.style.padding='0 24px 8px';
   scrollMessages();
-  const r=await callClaude(userText)||getAIResponse(userText).text;
+
+  // Build a rich context-aware prompt so Claude gives a specific, relevant answer
+  const entityCtx=[];
+  if(e.hasExplicitCar)entityCtx.push(`Car: ${e.car}`);
+  if(e.hasExplicitCity)entityCtx.push(`City: ${e.city}`);
+  if(e.hasExplicitBudget)entityCtx.push(`Budget: Rs.${(e.budget/100000).toFixed(1)}L`);
+
+  // Pull last 2 campaign memories for context
+  const recentMem=getMemory().slice(-2).filter(m=>m.type==='campaign'||m.type==='competitor');
+  const memCtx=recentMem.length>0
+    ?'\nRecent activity: '+recentMem.map(m=>`${m.type} for ${m.entities?.car||''} in ${m.entities?.city||''}`).join(', ')
+    :'';
+
+  const fullPrompt=`You are AMBIS, Cars24's autonomous media buying AI. Answer this specific question from the Cars24 performance marketing team:
+
+"${userText}"
+${entityCtx.length>0?'\nDetected context: '+entityCtx.join(', '):''}${memCtx}
+
+Instructions:
+- Answer EXACTLY what was asked. Do not give a generic overview.
+- If they ask for ad copy, write the actual copy (3-5 variations).
+- If they ask for audience targeting, give specific Meta audience setups.
+- If they ask about strategy, give a numbered action plan with specific numbers.
+- If they ask about budget, give exact rupee splits.
+- Always be specific to Cars24's used car business in India.
+- Use hyphens not em dashes. No emojis. Format with **bold** for key data points.`;
+
+  const r=await callClaude(fullPrompt)||getAIResponse(userText).text;
   t.style.display='none';
-  addMessage('ai',r,getAIResponse(userText).card);
+  addMessage('ai',r);
   scrollMessages();
 }
 </script>
@@ -1295,36 +1322,19 @@ function renderMemoryPage(){
     return`<div class="memory-entry">
       <span class="tag ${typeTag}" style="flex-shrink:0;align-self:flex-start;margin-top:2px">${m.type||'data'}</span>
       <div>
-        <div style="font-size:12.5px;font-weight:700">${e.car||'Research'}${e.city?'  -  '+e.city:''}</div>
-        <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px">${ts}${e.budget?' · ₹'+(e.budget/100000).toFixed(1)+'L':''}</div>
+        <div style="font-size:12.5px;font-weight:700">${e.car||'Research'}${e.city?' - '+e.city:''}</div>
+        <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px">${ts}${e.budget?' · Rs.'+(e.budget/100000).toFixed(1)+'L':''}</div>
       </div>
     </div>`;
   }).join('');
 
-  // Extract learnings
-  const campaigns=mem.filter(m=>m.type==='campaign');
-  const learnings=[];
-  if(campaigns.length>0){
-    const cities=[...new Set(campaigns.map(c=>c.entities&&c.entities.city).filter(Boolean))];
-    const cars=[...new Set(campaigns.map(c=>c.entities&&c.entities.car).filter(Boolean))];
-    if(cities.length>1)learnings.push({tag:'tag-cyan',text:`${cities.length} cities tracked: ${cities.join(', ')}`,delta:'Multi-market'});
-    if(campaigns.length>=2){
-      const avgCpl=Math.round(campaigns.reduce((s,c)=>(s+(c.entities&&c.entities.cpl||480)),0)/campaigns.length);
-      learnings.push({tag:'tag-green',text:`Avg projected CPL across campaigns: ₹${avgCpl}`,delta:'Benchmark'});
-    }
-    if(cars.length>0)learnings.push({tag:'tag-indigo',text:`Cars researched: ${cars.slice(0,5).join(', ')}`,delta:'Portfolio'});
-    learnings.push({tag:'tag-amber',text:'Reels-first creative shows 2.3x better CTR in Delhi NCR (from learnings)',delta:'Creative insight'});
-    learnings.push({tag:'tag-green',text:'Weekend CPL 18% lower than weekday across all cities',delta:'Timing insight'});
-  }
-
-  document.getElementById('learning-count').textContent=learnings.length+' insights';
-  learnEl.innerHTML=learnings.map(l=>`<div class="learning-item"><span class="tag ${l.tag}" style="flex-shrink:0;align-self:flex-start">${l.delta}</span><div style="font-size:12.5px;line-height:1.5">${l.text}</div></div>`).join('');
-
-  if(campaigns.length>=3){
-    document.getElementById('memory-synthesis-card').style.display='';
-    document.getElementById('memory-synthesis').textContent='Loading synthesis...';
-    const prompt=`Synthesise these Cars24 Meta Ads campaign runs and extract 3-5 key cross-campaign learnings:\n${JSON.stringify(campaigns.slice(0,8).map(c=>({car:c.entities?.car,city:c.entities?.city,cpl:c.entities?.cpl,budget:c.entities?.budget})))}`;
-    callClaude(prompt,null,600).then(r=>{if(r)document.getElementById('memory-synthesis').innerHTML=formatText(r)});
+  if(KEYS.claude){
+    const summaryPrompt=`Based on these Cars24 campaign memory entries, write a 3-bullet learning summary - what CPL trends, what's working, what to try next. Keep each bullet under 20 words.\n\nData: ${JSON.stringify(mem.slice(-10).map(m=>({type:m.type,car:m.entities?.car,city:m.entities?.city,cpl:m.entities?.cpl})))}`;
+    callClaude(summaryPrompt,'You are a senior media analyst. Be specific and concise.',400).then(r=>{
+      if(r)learnEl.innerHTML=r.replace(/\n/g,'<br>');
+    });
+  } else {
+    learnEl.innerHTML='Connect Claude API key for AI-generated learnings from your campaign history.';
   }
 }
 
@@ -1334,12 +1344,13 @@ async function sendMessage(){
   const text=input.value.trim();
   if(!text||isTyping)return;
   input.value='';input.style.height='auto';
-  const welcome=document.getElementById('welcome');
+  addMessage('user',text);
+  const welcome=document.getElementById('welcome-screen');
   if(welcome)welcome.remove();
   isTyping=true;
 
   const e=extractEntities(text);
-  const intent=detectIntent(text);
+  const intent=detectIntentForPage(text,currentPage);
 
   if(intent==='campaign'||intent==='copy'){
     await campaignPipeline(text,e);
@@ -1353,176 +1364,81 @@ async function sendMessage(){
   isTyping=false;
 }
 
-function sendChip(text){document.getElementById('chat-input').value=text;sendMessage()}
+function sendChip(text){document.getElementById('chat-input').value=text;sendMessage();}
 
-// ── Entity & Intent (reused from v1) ──────────────────
+// ── Entity & Intent Detection ─────────────────────────
 function extractEntities(text){
   const t=text.toLowerCase();
-  const carMap={'swift':'Maruti Swift','baleno':'Maruti Baleno','wagonr':'Maruti WagonR','wagon':'Maruti WagonR','creta':'Hyundai Creta','i20':'Hyundai i20','verna':'Hyundai Verna','venue':'Hyundai Venue','nexon':'Tata Nexon','altroz':'Tata Altroz','punch':'Tata Punch','seltos':'Kia Seltos','sonet':'Kia Sonet','city':'Honda City','amaze':'Honda Amaze','brezza':'Maruti Brezza','dzire':'Maruti Dzire','thar':'Mahindra Thar','xuv700':'Mahindra XUV700','xuv':'Mahindra XUV700','scorpio':'Mahindra Scorpio','fortuner':'Toyota Fortuner','innova':'Toyota Innova','ertiga':'Maruti Ertiga'};
-  const cityMap={'delhi':'Delhi NCR','ncr':'Delhi NCR','gurgaon':'Delhi NCR','noida':'Delhi NCR','mumbai':'Mumbai','bombay':'Mumbai','bangalore':'Bangalore','bengaluru':'Bangalore','hyderabad':'Hyderabad','pune':'Pune','chennai':'Chennai','madras':'Chennai','kolkata':'Kolkata','ahmedabad':'Ahmedabad','jaipur':'Jaipur','lucknow':'Lucknow'};
+  const carMap={
+    'swift':'Maruti Swift','maruti swift':'Maruti Swift','alto':'Maruti Alto','wagon r':'Maruti WagonR','wagonr':'Maruti WagonR',
+    'baleno':'Maruti Baleno','dzire':'Maruti Dzire','i20':'Hyundai i20','i 20':'Hyundai i20',
+    'creta':'Hyundai Creta','verna':'Hyundai Verna','venue':'Hyundai Venue',
+    'nexon':'Tata Nexon','punch':'Tata Punch','harrier':'Tata Harrier',
+    'seltos':'Kia Seltos','sonet':'Kia Sonet',
+    'brezza':'Maruti Brezza','vitara brezza':'Maruti Brezza',
+    'city':'Honda City','jazz':'Honda Jazz','amaze':'Honda Amaze',
+    'thar':'Mahindra Thar','xuv700':'Mahindra XUV700','xuv 700':'Mahindra XUV700','scorpio':'Mahindra Scorpio',
+    'fortuner':'Toyota Fortuner','innova':'Toyota Innova','glanza':'Toyota Glanza',
+    'ertiga':'Maruti Ertiga','xl6':'Maruti XL6',
+  };
+  const cityMap={
+    'delhi':'Delhi NCR','ncr':'Delhi NCR','gurgaon':'Delhi NCR','gurugram':'Delhi NCR','noida':'Delhi NCR','faridabad':'Delhi NCR',
+    'mumbai':'Mumbai','bombay':'Mumbai','thane':'Mumbai','navi mumbai':'Mumbai',
+    'bangalore':'Bangalore','bengaluru':'Bangalore','blr':'Bangalore',
+    'hyderabad':'Hyderabad','hyd':'Hyderabad','secunderabad':'Hyderabad',
+    'pune':'Pune','pcmc':'Pune',
+    'chennai':'Chennai','madras':'Chennai',
+    'kolkata':'Kolkata','calcutta':'Kolkata',
+    'ahmedabad':'Ahmedabad','amd':'Ahmedabad',
+    'jaipur':'Jaipur','lucknow':'Lucknow','chandigarh':'Chandigarh',
+  };
   const cplBase={'swift':440,'creta':490,'i20':420,'nexon':465,'seltos':480,'city':510,'verna':500,'baleno':430,'wagonr':410,'dzire':435,'punch':450,'thar':580,'xuv700':560,'ertiga':455,'brezza':460,'fortuner':650,'innova':520};
   const cityMul={'Delhi NCR':1.0,'Mumbai':1.15,'Bangalore':1.05,'Hyderabad':0.95,'Pune':0.98,'Chennai':1.1,'Kolkata':0.9,'Ahmedabad':0.92,'Jaipur':0.88,'Lucknow':0.85};
-  const carEntry=Object.entries(carMap).find(([k])=>t.includes(k));
-  const cityEntry=Object.entries(cityMap).find(([k])=>t.includes(k));
-  const budgetMatch=t.match(/(\d+(?:\.\d+)?)\s*(?:l\b|lakh|lac)/i)||t.match(/rs\.?\s*(\d+(?:\.\d+)?)\s*(l|lakh|k)?/i)||t.match(/₹\s*(\d+(?:\.\d+)?)\s*(l|lakh|k)?/i);
+  const carEntry=Object.entries(carMap).sort((a,b)=>b[0].length-a[0].length).find(([k])=>t.includes(k));
+  const cityEntry=Object.entries(cityMap).sort((a,b)=>b[0].length-a[0].length).find(([k])=>t.includes(k));
+  const budgetMatch=t.match(/(\d+(?:\.\d+)?)\s*(?:l\b|lakh|lac)/i)||t.match(/rs\.?\s*(\d+(?:\.\d+)?)\s*(l|lakh|k)?/i)||t.match(/₹\s*(\d+(?:\.\d+)?)\s*(l|lakh|k)?/i)||t.match(/budget[^\d]*(\d+)/i);
   const carKey=carEntry?carEntry[0]:'creta';
   const car=carEntry?carEntry[1]:'Hyundai Creta';
   const city=cityEntry?cityEntry[1]:'Delhi NCR';
-  const cityKey=cityEntry?cityEntry[0]:'delhi';
   let budget=500000;
   if(budgetMatch){
-    let n=parseFloat(budgetMatch[1]);
-    const u=(budgetMatch[2]||'').toLowerCase();
-    if(u==='l'||u==='lakh'||u==='lac')n*=100000;
-    else if(u==='k')n*=1000;
-    if(n>1000)budget=Math.max(50000,Math.min(n,10000000));
-    else if(n>0)budget=n*100000;
+    const n=parseFloat(budgetMatch[1]);const u=(budgetMatch[2]||'').toLowerCase();
+    if(u==='l'||u==='lakh'||u==='lac'||(!u&&n<1000))budget=n*100000;
+    else if(u==='k')budget=n*1000;
+    else if(n>1000)budget=Math.max(50000,Math.min(n,10000000));
+    else budget=n*100000;
   }
   const cpl=Math.round((cplBase[carKey]||470)*(cityMul[city]||1.0));
-  return{car,carKey,city,budget,cpl,leads:Math.round(budget/cpl)};
+  return{car,carKey,city,budget,cpl,leads:Math.round(budget/cpl),
+    hasExplicitCar:!!carEntry,hasExplicitCity:!!cityEntry,hasExplicitBudget:!!budgetMatch};
 }
 
 function detectIntent(text){
   const t=text.toLowerCase();
-  if(/competitor|spinny|olx|cardekho|droom|rival|compet/i.test(t))return'competitor';
-  if(/copy|creative|write|headline|ad text|caption|content/i.test(t))return'copy';
-  if(/performance|analytics|metric|report|cpl|roas|stat|result|this week|weekly|daily|insight/i.test(t))return'performance';
-  if(/audience|target|segment|who|buyer|persona/i.test(t))return'audience';
-  if(/memory|learning|past|history|previous|recall/i.test(t))return'memory';
-  if(/upload|csv|excel|file|import/i.test(t))return'upload';
-  if(/plan|campaign|launch|run|create|setup|start|build|meta|ad\b|ads\b|facebook/i.test(t))return'campaign';
+  if(/competitor|spinny|cardekho|olx|carwale|droom|rival|competition|\bvs\b|versus|compet|other\s*(brand|platform|player)|market\s*intel|who.*(running|active)/i.test(t))return'competitor';
+  if(/performance|cpl\b|roas\b|\bleads?\b|\bspend\b|report|analytic|dashboard|result|this\s*week|last\s*week|how.*(?:doing|perform)|insight|cost\s*per|conversion|metric|kpi/i.test(t))return'performance';
+  if(/(?:write|create|draft|make|give me|generate)\s*(?:an?\s*)?(?:ad|copy|creative|headline|caption|hook|cta|script|reel|carousel)/i.test(t))return'copy';
+  if(/campaign|launch|run\s*(?:a|an)|create\s*(?:a|an)|setup|set\s*up|start|build|plan|deploy|strategy|facebook|meta\b|\bads?\b|target(?:ing)?|audience|budget.*(?:split|allocat)|media\s*plan/i.test(t))return'campaign';
   return'general';
 }
 
-// Fallback for general/audience/memory intents
+function detectIntentForPage(text,page){
+  if(page==='intelligence')return'competitor';
+  if(page==='dashboard')return'performance';
+  if(page==='launch')return'campaign';
+  return detectIntent(text);
+}
+
+// Fallback responses when Claude API not connected
 function getAIResponse(msg){
   const e=extractEntities(msg);const intent=detectIntent(msg);
-  if(intent==='audience'){return{text:`**Audience strategy for ${e.city}**  -  3 segments for ${e.car} buyers.`,card:`<div class="rich-card"><div class="card-header"><span class="card-title">Audience Segments  -  ${e.city}</span><span class="card-badge badge-indigo">3 Segments</span></div><div class="card-body">${[{s:'Tech Professionals 24–35',sz:'4.2M–4.8M',cpl:'₹390',c:'indigo'},{s:'Young Families 28–40',sz:'2.8M–3.2M',cpl:'₹445',c:'cyan'},{s:'First Job Earners 22–28',sz:'3.6M–4.0M',cpl:'₹510',c:'green'}].map(a=>`<div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><div style="font-size:13px;font-weight:700">${a.s}</div><span class="tag tag-${a.c}">CPL ${a.cpl}</span></div><div style="font-size:11.5px;color:var(--text-muted)">Audience size: ${a.sz}</div></div>`).join('')}</div></div>`};}
-  if(intent==='memory'){return{text:'Retrieving campaign memory...',card:`<div class="rich-card"><div class="card-header"><span class="card-title">Campaign Memory</span><span class="card-badge badge-cyan">${getMemory().length} entries</span></div><div class="card-body"><div style="font-size:12.5px;color:var(--text-secondary)">Go to Memory page for full history and AI-synthesised learnings. ${getMemory().length===0?'Run campaigns first to build memory.':'Click Memory in the sidebar.'}</div></div></div>`};}
+  if(intent==='campaign')return{text:`AMBIS ready to build a campaign for ${e.car} in ${e.city}. Connect your Claude API key in Settings (click your name) for a full AI-generated strategy.`,card:null};
+  if(intent==='competitor')return{text:`Competitor intelligence for ${e.car} segment in ${e.city||'India'}. Connect Claude API key and Apify token for live competitor data from Spinny, CarDekho, OLX.`,card:null};
+  if(intent==='performance')return{text:`Performance analysis requires your Meta token to pull live campaign data. Connect it in Settings under Yash Diwan.`,card:null};
   return{text:`AMBIS ready. I can plan campaigns, research competitors, analyse performance, and generate ad copy for ${e.car} in ${e.city}. What would you like to do?`,card:null};
 }
-</script>
-<script>
-// ── UI Helpers ────────────────────────────────────────
-function addMessage(role,text,card){
-  const msgs=document.getElementById('messages');
-  const row=document.createElement('div');
-  row.className=`msg-row ${role}`;
-  const avatar=document.createElement('div');
-  avatar.className=`msg-avatar ${role}`;
-  avatar.textContent=role==='ai'?'AI':'YD';
-  const right=document.createElement('div');
-  const bubble=document.createElement('div');
-  bubble.className='msg-bubble';
-  bubble.innerHTML=formatText(text);
-  if(card){const c=document.createElement('div');c.className='card-block';c.innerHTML=card;bubble.appendChild(c)}
-  const time=document.createElement('div');
-  time.className='msg-time';
-  time.textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-  right.appendChild(bubble);right.appendChild(time);
-  if(role==='user'){row.appendChild(right);row.appendChild(avatar)}else{row.appendChild(avatar);row.appendChild(right)}
-  msgs.appendChild(row);
-}
 
-function formatText(text){
-  if(!text)return'';
-  return text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\n/g,'<br>');
-}
-
-function scrollMessages(){
-  const m=document.getElementById('messages');
-  setTimeout(()=>m.scrollTop=m.scrollHeight,50);
-}
-
-function toggleSidebar(){
-  sidebarCollapsed=!sidebarCollapsed;
-  document.getElementById('sidebar').classList.toggle('collapsed',sidebarCollapsed);
-}
-
-function showPage(page){
-  currentPage=page;
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById(`nav-${page}`)?.classList.add('active');
-
-  // Hide all
-  document.getElementById('chat-page').style.display='none';
-  document.getElementById('launch-page').style.display='none';
-  document.getElementById('intelligence-page').style.display='none';
-  document.getElementById('dashboard-page').style.display='none';
-  document.getElementById('memory-page').style.display='none';
-
-  const sub={chat:'Chat with AMBIS',launch:'Launch Campaign',intelligence:'Competitor Intelligence',dashboard:'Performance Dashboard',memory:'Campaign Memory'};
-  document.getElementById('page-sub').textContent=sub[page]||'';
-
-  if(page==='chat'){
-    document.getElementById('chat-page').style.display='flex';
-  }else{
-    const el=document.getElementById(`${page}-page`);
-    el.style.display='flex';
-    el.style.flexDirection='column';
-    if(page==='dashboard')renderCharts();
-    if(page==='memory')renderMemoryPage();
-    if(page==='intelligence'&&!document.getElementById('intel-results').style.display){
-      document.getElementById('intel-results').style.display='none';
-    }
-  }
-}
-
-// ── Settings & Admin ──────────────────────────────────
-function openSettings(){ openAdmin(); } // redirect legacy calls
-function closeSettings(){ closeAdmin(); }
-function updateKeyStatus(set){
-  const b=document.getElementById('key-status-banner');
-  const badge=document.getElementById('live-badge');
-  const lbl=document.getElementById('mode-label');
-  if(!b)return;
-  if(set){b.className='key-status set';b.textContent='Claude API active - Live AI enabled';lbl.textContent='Live AI';badge.style.background='rgba(16,185,129,.1)';badge.style.borderColor='rgba(16,185,129,.3)'}
-  else{b.className='key-status unset';b.textContent='No Claude key set - running in Demo Mode';lbl.textContent='Demo';badge.style.background='';badge.style.borderColor=''}
-  // update status tags in admin panel
-  const ct=document.getElementById('claude-status-tag');
-  const mt=document.getElementById('meta-status-tag');
-  const at=document.getElementById('apify-status-tag');
-  if(ct){ct.textContent=_load('claude')?'Connected':'Not set';ct.className='tag '+(_load('claude')?'tag-green':'tag-red');}
-  if(mt){mt.textContent=_load('meta_token')?'Connected':'Not set';mt.className='tag '+(_load('meta_token')?'tag-green':'tag-red');}
-  if(at){at.textContent=_load('apify')?'Connected':'Not set';at.className='tag '+(_load('apify')?'tag-green':'tag-red');}
-}
-function openAdmin(){
-  const pwd=prompt('Admin password (set one on first use):');
-  if(!pwd)return;
-  const stored=_load('admin_pass');
-  if(!stored){_store('admin_pass',pwd);_populateAdmin();document.getElementById('admin-modal').classList.add('open')}
-  else if(pwd===stored){_populateAdmin();document.getElementById('admin-modal').classList.add('open')}
-  else{alert('Incorrect password.')}
-}
-function closeAdmin(){document.getElementById('admin-modal').classList.remove('open')}
-function renderAdminPanel(){_populateAdmin();}
-function _populateAdmin(){
-  // populate field values from storage
-  const fields={claude:'admin_claude',meta_token:'admin_meta_token',meta_account:'admin_meta_account',apify:'admin_apify',crm_hook:'admin_crm_hook'};
-  Object.entries(fields).forEach(([k,id])=>{const el=document.getElementById(id);if(el&&_load(k))el.value=_load(k);});
-  updateKeyStatus(!!_load('claude'));
-}
-function saveAdminKey(id){
-  const elMap={claude:'admin_claude',meta_token:'admin_meta_token',meta_account:'admin_meta_account',apify:'admin_apify',crm_hook:'admin_crm_hook'};
-  const elId=elMap[id]||('admin_'+id);
-  const v=document.getElementById(elId)?.value.trim();
-  if(!v){alert('Please enter a value first.');return;}
-  _store(id,v);
-  if(id==='claude'){AMBIS_KEY=v;}
-  updateKeyStatus(!!_load('claude'));
-  const btn=event.currentTarget;const orig=btn.textContent;btn.textContent='Saved!';btn.style.background='var(--green)';setTimeout(()=>{btn.textContent=orig;btn.style.background='';},1500);
-}
-function clearAdminKey(id){
-  _clear(id);
-  if(id==='claude'){AMBIS_KEY='';updateKeyStatus(false);}
-  const elMap={claude:'admin_claude',meta_token:'admin_meta_token',meta_account:'admin_meta_account',apify:'admin_apify',crm_hook:'admin_crm_hook'};
-  const elId=elMap[id]||('admin_'+id);
-  const el=document.getElementById(elId);if(el)el.value='';
-  updateKeyStatus(!!_load('claude'));
-}
+// ── Ad Report Upload ─────────────────────────────────
 function handleReportUpload(input){
   const file=input.files[0];if(!file)return;
   const result=document.getElementById('report-upload-result');
@@ -1530,7 +1446,7 @@ function handleReportUpload(input){
   const reader=new FileReader();
   reader.onload=async function(e){
     if(!file.name.toLowerCase().endsWith('.csv')){
-      result.textContent='Excel files: export as CSV from Meta Ads Manager (or open in Google Sheets and download as CSV), then re-upload.';return;
+      result.textContent='Excel files: export as CSV from Meta Ads Manager first, then re-upload.';return;
     }
     const text=e.target.result;
     const lines=text.trim().split('\n').slice(0,200);
@@ -1538,13 +1454,13 @@ function handleReportUpload(input){
     const sample=lines.slice(0,6).join('\n');
     result.textContent='Analysing '+lines.length+' rows...';
     _storeObj('uploaded_report',{filename:file.name,headers,rows:lines.slice(1,51)});
-    const prompt='You are an expert performance marketer analysing a Meta Ads Manager CSV export for Cars24.\n\nSample data (headers + first 5 rows):\n\n'+sample+'\n\nTotal rows: '+(lines.length-1)+'\n\nProvide a concise analysis: top campaigns by CPL, campaigns to cut, budget reallocation recommendations, and 3 specific action items. Use hyphens not em dashes. No emojis.';
+    const prompt='You are an expert performance marketer analysing a Meta Ads Manager CSV export for Cars24.\n\nSample data (headers + first 5 rows):\n\n'+sample+'\n\nTotal rows: '+(lines.length-1)+'\n\nProvide: top campaigns by CPL, campaigns to cut, budget reallocation recommendations, 3 specific action items. Use hyphens not em dashes. No emojis.';
     try{
       const analysis=await callClaude(prompt,'You are a senior media buyer. Be direct and specific. Under 300 words.',800);
       result.innerHTML='<strong>'+file.name+'</strong> ('+(lines.length-1)+' rows)<br><br>'+analysis.replace(/\n/g,'<br>');
       saveToMemory({type:'report_upload',filename:file.name,analysis:analysis.slice(0,400),ts:new Date().toISOString()});
     }catch(err){
-      result.innerHTML='<strong>'+file.name+'</strong> uploaded ('+(lines.length-1)+' rows). Connect Claude API key for AI analysis.<br><br><em>Headers detected: '+headers.slice(0,120)+'...</em>';
+      result.innerHTML='<strong>'+file.name+'</strong> uploaded ('+(lines.length-1)+' rows). Connect Claude API key for AI analysis.<br><br><em>Headers: '+headers.slice(0,120)+'</em>';
     }
   };
   reader.readAsText(file);
