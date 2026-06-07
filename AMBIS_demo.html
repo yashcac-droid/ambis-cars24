@@ -684,8 +684,10 @@ async function callMetaMarketing(method,path,data={}){
       opts.body=JSON.stringify({...data,access_token:KEYS.meta});
     }
     const r=await fetch(finalUrl,opts);
-    if(r.ok){const d=await r.json();return d}
-  }catch(e){}
+    const d=await r.json();
+    if(d.error){return{_error:d.error};}
+    if(r.ok){return d;}
+  }catch(e){return{_error:{message:e.message,type:'NetworkError'}};}
   return null;
 }
 
@@ -694,18 +696,26 @@ function parseApifyResults(results,entities){
   const prices=[];
   results.forEach(r=>{
     if(!r.title&&!r.snippet)return;
-    const text=(r.title||'')+(r.snippet||'');
-    const priceMatch=text.match(/₹\s*([\d,]+(?:\.\d+)?)\s*(?:lakh|l\b|lac)?/gi);
-    if(priceMatch&&r.displayLink){
+    const text=(r.title||'')+' '+(r.snippet||'');
+    // Match ₹ symbol, "Rs.", or just plain lakh numbers e.g. "4.5 lakh", "4,50,000"
+    const patterns=[
+      /(?:Rs\.?|₹)\s*[\d,]+(?:\.\d+)?\s*(?:lakh|lac|L)?/gi,
+      /[\d,]+(?:\.\d+)?\s*(?:lakh|lac)\b/gi,
+      /[\d]{1,2}\.[\d]{1,2}\s*L\b/gi
+    ];
+    let found=null;
+    for(const pat of patterns){const m=text.match(pat);if(m){found=m[0];break;}}
+    if(found&&r.displayLink){
       const site=r.displayLink.replace('www.','').split('.')[0];
-      const price=priceMatch[0];
-      prices.push({site,price,title:(r.title||'').substring(0,60)});
+      prices.push({site,price:found,title:(r.title||'').substring(0,60)});
     }
   });
-  const summary=prices.length>0
-    ?prices.slice(0,4).map(p=>`${p.site}: ${p.price}`).join(' · ')
-    :`Market data loaded for ${entities.car} in ${entities.city}`;
-  return{prices,summary,raw:results.slice(0,5)};
+  // Deduplicate by site, keep first
+  const seen={};const unique=prices.filter(p=>{if(seen[p.site])return false;seen[p.site]=true;return true;});
+  const summary=unique.length>0
+    ?`Live pricing - `+unique.slice(0,4).map(p=>`${p.site}: ${p.price}`).join(', ')
+    :`Web data scraped for ${entities.car} in ${entities.city} (no price patterns found)`;
+  return{prices:unique,summary,raw:results.slice(0,5),hasLivePrices:unique.length>0};
 }
 
 function parseAdLibraryResults(data,entities){
@@ -935,13 +945,26 @@ async function campaignPipeline(userText,e){
 
   // Step 3: Claude Strategy
   setPipelineStep(pid,'strategy','running');
+  const pricingContext=market.hasLivePrices&&market.prices.length>0
+    ?`Live scraped pricing: ${market.prices.slice(0,4).map(p=>`${p.site}: ${p.price}`).join(', ')}`
+    :`No live pricing scraped - use your knowledge of ${e.car} used car pricing in ${e.city} (typical range Rs.3-12L depending on year/variant)`;
+  const competitorContext=(adIntel.ads||[]).length>0
+    ?`Competitor ads found: ${(adIntel.ads||[]).slice(0,3).map(a=>`${a.name} (${a.count} ads): "${(a.copies||[])[0]||'active'}"`).join(' | ')}`
+    :`No competitor ad data - use your knowledge of Spinny, CarDekho, OLX Autos typical Meta ad strategies`;
   const prompt=`Build a complete Meta Ads campaign plan for Cars24.
-Car: ${e.car} | City: ${e.city} | Budget: ₹${(e.budget/100000).toFixed(1)}L | Objective: Lead Generation
+Car: ${e.car} | City: ${e.city} | Budget: Rs.${(e.budget/100000).toFixed(1)}L | Objective: Lead Generation
 
-Market pricing data: ${JSON.stringify((market.prices||[]).slice(0,4))}
-Competitor ads found: ${JSON.stringify((adIntel.ads||[]).slice(0,3))}
+${pricingContext}
+${competitorContext}
 
-Provide: campaign strategy, 4 ad set breakdown with budgets, creative direction, projected CPL and leads, competitor gap to exploit.`;
+Provide a complete plan with:
+1. Campaign strategy and positioning vs competitors
+2. 4 ad set breakdown with specific budgets, audiences, placements, ad formats
+3. Creative direction for each ad set (what to show, what angle)
+4. Projected CPL and lead volume over 14 days
+5. One specific competitor gap to exploit
+
+Use Rs. for rupees. Use hyphens not em dashes. No emojis. Be specific with numbers.`;
   const strategy=await callClaude(prompt)||getDemoStrategy(e,market,adIntel);
   setPipelineStep(pid,'strategy','done','Strategy generated'+(KEYS.claude?' (live Claude)':' (demo)'));
 
@@ -981,12 +1004,22 @@ async function competitorPipeline(userText,e){
   else{await sleep(1000);adData=getDemoAdIntel(e);setPipelineStep(pid,'ads','done',adData.summary+(adData.isDemo?' (demo)':''))}
 
   setPipelineStep(pid,'intel','running');
-  const prompt=`Competitor intelligence report for Cars24.
-Competitor web data: ${JSON.stringify(scrape.items.slice(0,5))}
-Competitor ads: ${JSON.stringify((adData.ads||[]).slice(0,4))}
-Car: ${e.car||'used cars'} | Market: ${e.city||'India'}
-Request: ${userText}
-Provide: Pricing gap analysis, ad strategy weaknesses, 3 specific Cars24 opportunities, recommended counter-campaign with budget.`;
+  const webCtx=scrape.items.length>0
+    ?scrape.items.slice(0,5).map(i=>`${i.url}: ${i.snippet}`).join('\n')
+    :`No live web data - use knowledge of Spinny, CarDekho, OLX Autos strategies`;
+  const adCtx=(adData.ads||[]).length>0
+    ?(adData.ads||[]).slice(0,4).map(a=>`${a.name} (${a.count} ads): "${(a.copies||[])[0]||'active'}"`).join(' | ')
+    :`No live ad data - use knowledge of typical competitor Meta ad strategies`;
+  const prompt=`Competitor intelligence report for Cars24 used car business.
+Car segment: ${e.car||'used cars'} | Market: ${e.city||'India'}
+
+Web intelligence:\n${webCtx}
+
+Active Meta ads:\n${adCtx}
+
+User request: ${userText}
+
+Provide: pricing gap analysis vs competitors, specific ad strategy weaknesses you can see, 3 actionable Cars24 opportunities, recommended counter-campaign with budget split. Use Rs. Use hyphens not em dashes. No emojis. Be specific.`;
   const intel=await callClaude(prompt)||getDemoCompetitorIntel(e,scrape,adData);
   setPipelineStep(pid,'intel','done','Report complete');
   completePipeline(pid);
@@ -1090,12 +1123,13 @@ async function quickDeploy(){
   if(btn){btn.textContent=' Creating...';btn.disabled=true}
   const result=await callMetaMarketing('POST',`act_${KEYS.metaAccount}/campaigns`,{name:lastCampaignPlan.name,objective:lastCampaignPlan.objective||'LEAD_GENERATION',status:'PAUSED',special_ad_categories:[]});
   if(result&&result.id){
-    if(btn){btn.textContent=`✓ Created  -  ID: ${result.id}`;btn.style.background='linear-gradient(135deg,#10b981,#6ee7b7)'}
-    addMessage('ai',`**Campaign deployed to Meta (PAUSED)**\n\nCampaign ID: \`${result.id}\`\nStatus: PAUSED  -  review in Meta Ads Manager before activating.\nName: ${lastCampaignPlan.name}`);
+    if(btn){btn.textContent=`Deployed - ID: ${result.id}`;btn.style.background='linear-gradient(135deg,#10b981,#6ee7b7)'}
+    addMessage('ai',`**Campaign deployed to Meta (PAUSED)**\n\nCampaign ID: \`${result.id}\`\nStatus: PAUSED - review in Meta Ads Manager before activating.\nName: ${lastCampaignPlan.name}`);
     scrollMessages();
   }else{
-    if(btn){btn.textContent='⚠ Error  -  Check Token';btn.disabled=false}
-    addMessage('ai','Meta API returned an error. Check: (1) your token is valid, (2) the Ad Account ID is correct (numbers only, no "act_" prefix), (3) your token has ads_management permission.');
+    const errMsg=result&&result._error?`Meta error: "${result._error.message}" (code ${result._error.code||'?'}, type: ${result._error.type||'?'})`:'No response from Meta - possible network or CORS issue.';
+    if(btn){btn.textContent='Error - Retry';btn.disabled=false}
+    addMessage('ai',`**Meta API Error**\n\n${errMsg}\n\n**How to fix:**\n- Token expired - generate a new one at developers.facebook.com/tools/explorer\n- Wrong account ID - open Meta Ads Manager, the number in the URL after "act_" is your ID\n- Missing permissions - token needs ads_management and ads_read scopes\n- Token type - use a User token not a Page token`);
     scrollMessages();
   }
 }
@@ -1166,11 +1200,12 @@ async function deployToMeta(){
   btn.disabled=true;btn.textContent=' Deploying...';
   const r=await callMetaMarketing('POST',`act_${KEYS.metaAccount}/campaigns`,{name:lastCampaignPlan.name,objective:lastCampaignPlan.objective||'LEAD_GENERATION',status:'PAUSED',special_ad_categories:[]});
   if(r&&r.id){
-    btn.textContent=`✓ Deployed  -  ID ${r.id}`;btn.style.background='linear-gradient(135deg,#10b981,#6ee7b7)';
-    document.getElementById('launch-meta-hint').innerHTML=`<span style="color:var(--green)">✓ Campaign created in Meta Ads Manager (PAUSED). Campaign ID: <strong>${r.id}</strong></span>`;
+    btn.textContent=`Deployed - ID ${r.id}`;btn.style.background='linear-gradient(135deg,#10b981,#6ee7b7)';
+    document.getElementById('launch-meta-hint').innerHTML=`<span style="color:var(--green)">Campaign created in Meta Ads Manager (PAUSED). Campaign ID: <strong>${r.id}</strong></span>`;
   }else{
-    btn.disabled=false;btn.textContent='⚠ Error  -  Retry';
-    document.getElementById('launch-meta-hint').innerHTML='<span style="color:var(--red)">Error creating campaign. Check token permissions (ads_management required) and account ID.</span>';
+    const errMsg=r&&r._error?`Meta: "${r._error.message}" (code ${r._error.code||'?'})`:'No response - check network/token.';
+    btn.disabled=false;btn.textContent='Error - Retry';
+    document.getElementById('launch-meta-hint').innerHTML=`<span style="color:var(--red)">${errMsg} - needs ads_management permission + correct account ID.</span>`;
   }
 }
 </script>
@@ -1548,7 +1583,6 @@ document.getElementById('chat-input').addEventListener('keydown',function(e){if(
 (function init(){
   if(KEYS.claude){AMBIS_KEY=KEYS.claude;updateKeyStatus(true);}
   else{updateKeyStatus(false);}
-  // drag-and-drop for report upload
   document.addEventListener('DOMContentLoaded',function(){
     const zone=document.getElementById('upload-zone');
     if(zone){
